@@ -1,20 +1,32 @@
-# Qwerty Bot
+# 🤖 Qwerty Bot
 
-A Discord bot made for KTP @ Pitt that allows server members to assist 
+Qwerty is a multi-featured Discord bot designed for student organizations like Kappa Theta Pi. It helps with birthday reminders, reaction-based role assignment, and quick access to important links and org member info.
 
-## 🎉 Birthday Features
-Allows brothers to set their birthdays and receive automated birthday wishes on their special day.
-- `!setbirthday MM-DD` — Save your birthday.
+---
+
+## 🚀 Features
+
+### 🎉 Birthday Bot
+- `!setbirthday MM-DD` — Set your birthday.
+- `!removebirthday` — Remove your birthday.
 - `!mybirthday` — Check your saved birthday.
-- `!removebirthday` — Delete your saved birthday.
-- Daily birthday checks at midnight.
-- Variety of randomized birthday messages.
-- Manual testing with `!testbirthdays`.
+- Automatic birthday messages daily at 8 AM with fun randomized messages.
 
-## 🔧 Setup Instructions
+### 🎭 Reaction Role Bot
+- `!setuproles` (admin only) — Posts a message where members can react to get roles.
+- React/unreact to auto-assign or remove roles based on emoji.
 
-### 1. Clone the Repository
+### 🔗 Helper Commands
+- `!mastersheet` — Get the link to the organization's master sheet.
+- `!eboard` — See the current Eboard members.
+- `!gboard` — See the current Gboard members.
+
+---
+
+## 🛠 Setup
+
+### 1. Clone the Repo
 
 ```bash
-git clone https://github.com/yourusername/qwerty-birthday-bot.git
-cd qwerty-birthday-bot
+git clone https://github.com/yourusername/qwerty-bot.git
+cd qwerty-bot
