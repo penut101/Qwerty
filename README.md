@@ -1,6 +1,7 @@
 # 🤖 Qwerty Bot
 
-Qwerty is a multi-featured Discord bot designed for student organizations like Kappa Theta Pi. It helps with birthday reminders, reaction-based role assignment, and quick access to important links and org member info.
+Qwerty is a Discord bot designed for student organizations like Kappa Theta Pi. 
+It helps with birthday reminders, reaction-based role assignment, and quick access to important links and org member info.
 
 ---
 
@@ -17,7 +18,7 @@ Qwerty is a multi-featured Discord bot designed for student organizations like K
 - React/unreact to auto-assign or remove roles based on emoji.
 
 ### 🔗 Helper Commands
-- `!mastersheet` — Get the link to the organization's master sheet.
+- `!mastersheet` — Get the link to the master sheet.
 - `!eboard` — See the current Eboard members.
 - `!gboard` — See the current Gboard members.
 

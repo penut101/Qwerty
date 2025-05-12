@@ -4,8 +4,8 @@ import os
 
 reaction_roles = {
     "🎮": "Gamer",
-    "📚": "Music",
-    "🎨": "Rock Climbing",
+    "🎵": "Music",
+    "🧗": "Rock Climbing",
     "🍔": "Foodie"
 }
 
@@ -20,8 +20,8 @@ class RolesCog(commands.Cog):
         msg = await ctx.send(
             "React to get a role:\n"
             "🎮 = Gamer\n"
-            "📚 = Music\n"
-            "🎨 = Rock Climbing\n"
+            "🎵 = Music\n"
+            "🧗 = Rock Climbing\n"
             "🍔 = Foodie"
         )
         for emoji in reaction_roles:
