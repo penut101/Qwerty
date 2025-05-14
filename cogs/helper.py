@@ -9,17 +9,31 @@ class HelperCog(commands.Cog):
     @commands.command()
     # Get a list of commands
     async def help(self, ctx):
-        """Get a list of commands."""
+        """Display all bot commands organized by category."""
         help_message = (
-            "Here are the commands you can use:\n"
-            "!mastersheet - Get the link to the mastersheet\n"
-            "!eboard - Get the list of Eboard Members\n"
-            "!gboard - Get the list of Gboard Members\n"
-            "!setbirthday MM-DD - Set your birthday\n"
-            "!removebirthday - Remove your birthday\n"
-            "!mybirthday - Check your set birthday\n"
+            "**📌 General Commands:**\n"
+            "`!mastersheet` - Get the link to the mastersheet\n"
+            "`!eboard` - View the list of Eboard Members\n"
+            "`!gboard` - View the list of Gboard Members\n\n"
+
+            "**🎉 Birthday Commands:**\n"
+            "`!setbirthday MM-DD` - Set your birthday\n"
+            "`!removebirthday` - Remove your saved birthday\n"
+            "`!mybirthday` - Check your current birthday\n"
+            "`!birthdayboard` - View the birthday calendar\n\n"
+
+            "**🎲 Fun Commands:**\n"
+            "`!eightball <question>` - Ask the magic 8-ball a question\n"
+            "`!fact` - Get a random fun fact\n"
+            "`!vibecheck` - See if you pass the vibe check\n"
+            "`!coinflip` - Flip a coin\n\n"
+
+            "**📌 Role Commands:**\n"
+            "`!setuproles` - (Admin) Post a message for users to get roles via reactions\n"
         )
-        await ctx.send(f"{ctx.author.mention}, here’s the help message! 👉\n```{help_message}```")
+
+        await ctx.send(f"{ctx.author.mention}, here’s everything I can do! 🧠\n```markdown\n{help_message}```")
+        await ctx.send("If you need help with anything else, feel free to ask! 😊")
 
 
     @commands.command()
