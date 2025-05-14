@@ -87,49 +87,67 @@ class BirthdayCog(commands.Cog):
                     day_birthdays[bday_day].append(user.name)
             except Exception:
                 continue
+        # Load QWERTY logo
+        logo_path = "QWERTY Bot Logo.png"  # Make sure this is in your bot's directory
+        logo = Image.open(logo_path).convert("RGBA").resize((150, 150))
 
-        # Image parameters
-        width, height = 700, 500
-        cell_w, cell_h = 100, 70
-        font = ImageFont.truetype("arial.ttf", 14)
+        # Setup image
+        width, height = 715, 590
+        cell_w, cell_h = 100, 75
+        padding_top = 160
 
-        img = Image.new("RGB", (width, height), "white")
+        bg_color = "#006b8f"
+        title_color = "#f6ec6b"
+        tile_color = "#ffffff"
+        text_color = "#333"
+        bday_color = "#3498DB"
+
+        try:
+            font_title = ImageFont.truetype("fira.ttf", 32)
+            font_day = ImageFont.truetype("fira.ttf", 20)
+            font_name = ImageFont.truetype("fira.ttf", 16)
+        except:
+            font_title = ImageFont.load_default()
+            font_day = ImageFont.load_default()
+            font_name = ImageFont.load_default()
+
+        img = Image.new("RGB", (width, height), bg_color)
         draw = ImageDraw.Draw(img)
-        draw.text((10, 10), f"{calendar.month_name[month]} {year}", fill="black", font=font)
 
-        # Draw day headers
+        # Logo and title
+        img.paste(logo, ((width - logo.width) // 2, 5), logo)
+        title = f"{calendar.month_name[month]} {year} Birthday Board"
+        draw.text(((width - draw.textlength(title, font=font_title)) // 2, 160), title, fill=title_color, font=font_title)
+
+        # Weekday headers
         for i, day_name in enumerate(calendar.day_abbr):
-            draw.text((i * cell_w + 10, 40), day_name, fill="blue", font=font)
+            draw.text((i * cell_w + 30, padding_top + 20), day_name, fill="white", font=font_day)
 
-        # Draw calendar grid + birthdays
         first_weekday, _ = calendar.monthrange(year, month)
         day = 1
-        y_offset = 60
+        y_start = padding_top + 40
 
         for week in range(6):
             for dow in range(7):
                 x = dow * cell_w
-                y = y_offset + week * cell_h
+                y = y_start + week * cell_h
                 if week == 0 and dow < first_weekday:
                     continue
                 if day > num_days:
                     break
 
-                draw.rectangle([x, y, x + cell_w, y + cell_h], outline="gray", width=1)
-                draw.text((x + 5, y + 5), str(day), fill="black", font=font)
+                draw.rounded_rectangle([x + 5, y + 5, x + cell_w - 5, y + cell_h - 5], radius=10, fill=tile_color, outline="#dddddd")
+                draw.text((x + 10, y + 8), str(day), fill=text_color, font=font_day)
 
-                # Add names for that day
-                names = day_birthdays.get(day, [])
-                for i, name in enumerate(names):
-                    draw.text((x + 5, y + 20 + i * 14), name[:10], fill="green", font=font)
+                for i, name in enumerate(day_birthdays.get(day, [])):
+                    draw.text((x + 10, y + 25 + i * 15), f"🎂 {name[:12]}", fill=bday_color, font=font_name)
 
                 day += 1
 
-        # Save and send image
-        img_path = "birthday_calendar.png"
-        img.save(img_path)
-        await ctx.send(file=discord.File(img_path))
-
+        # Save and send
+        out_path = f"birthday_board_{month}.png"
+        img.save(out_path)
+        await ctx.send(file=discord.File(out_path))
     #Birthday check task
     @tasks.loop(time=datetime.strptime("08:00", "%H:%M").time()) # Check every day at 8 AM
     async def check_birthdays(self):
