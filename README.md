@@ -11,6 +11,7 @@ It helps with birthday reminders, reaction-based role assignment, and quick acce
 - `!setbirthday MM-DD` — Set your birthday.
 - `!removebirthday` — Remove your birthday.
 - `!mybirthday` — Check your saved birthday.
+- `!birthdayboard` — Check the month for birthdays.
 - Automatic birthday messages daily at 8 AM with fun randomized messages.
 
 ### 🎭 Reaction Role Bot
