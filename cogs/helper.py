@@ -1,3 +1,6 @@
+# This is a cog for the Qwerty Bot
+# It contains helper commands that users can interact with.
+# Written by Aiden Nemeroff
 import discord
 from discord.ext import commands
 

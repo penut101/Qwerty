@@ -1,3 +1,7 @@
+# This is a cog for the Qwerty Bot
+# It contains birthday management commands that users can interact with.
+# The bot allows users to set, remove, and check their birthdays, as well as view a birthday calendar.
+# Written by Aiden Nemeroff
 import discord
 from discord.ext import commands, tasks
 import json
@@ -24,7 +28,7 @@ class BirthdayCog(commands.Cog):
             json.dump(data, f, indent=4)
 
     @commands.command()
-    #Set birthday command
+    #!setbirthday MM-DD - Set your birthday
     async def setbirthday(self, ctx, date: str):
         """Set your birthday. Format: MM-DD"""
         try:
@@ -38,7 +42,7 @@ class BirthdayCog(commands.Cog):
             await ctx.send("Invalid date format! Use MM-DD.")
 
     @commands.command()
-    #Remove birthday command
+    #!removebirthday - Remove your birthday
     async def removebirthday(self, ctx):
         """Remove your birthday from the records."""
         user_id = str(ctx.author.id)
@@ -52,7 +56,7 @@ class BirthdayCog(commands.Cog):
             await ctx.send("You don't have a birthday set.")
 
     @commands.command()
-    #Check birthday command
+    #!mybirthday - Check your birthday
     async def mybirthday(self, ctx):
         """Check your set birthday."""
         user_id = str(ctx.author.id)
@@ -63,6 +67,7 @@ class BirthdayCog(commands.Cog):
             await ctx.send("You haven't set your birthday yet. Use `!setbirthday MM-DD` to do so.")
 
     @commands.command()
+    #!birthdayboard - Displays a calendar with member birthdays
     async def birthdayboard(self, ctx):
         """Displays a calendar with member birthdays."""
         try:
