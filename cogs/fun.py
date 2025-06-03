@@ -16,6 +16,7 @@ class FunCog(commands.Cog):
             "Yes!", "Nope.", "Maybe...", "Definitely!", "Absolutely not.",
             "Ask again later.", "Without a doubt.", "I'm not sure.", "Signs point to yes."
         ]
+        # Dictionary of fun facts to share
         self.facts = [
             "Honey never spoils. Archaeologists have found 3,000-year-old jars of it still preserved!",
             "Bananas are berries, but strawberries aren't.",

@@ -9,7 +9,7 @@ import discord
 from discord.ext import commands
 import os
 
-#List of roles and their corresponding emojis
+# List of roles and their corresponding emojis
 reaction_roles = {
     "🎮": "Gamer",
     "🎵": "Music",
@@ -23,7 +23,7 @@ class RolesCog(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(administrator=True)
-    #!setuproles - Post a message for users to get roles via reactions (Admin only)
+    # !setuproles - Post a message for users to get roles via reactions (Admin only)
     async def setuproles(self, ctx):
         """Post the reaction role message."""
         msg = await ctx.send(
@@ -33,9 +33,11 @@ class RolesCog(commands.Cog):
             "🧗 = Rock Climbing\n"
             "🍔 = Foodie"
         )
+        # Add reactions to the message for each role
         for emoji in reaction_roles:
             await msg.add_reaction(emoji)
-
+            
+        # Save the message ID to a file for later reference
         with open("reaction_roles_msg.txt", "w") as f:
             f.write(str(msg.id))
 

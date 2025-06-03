@@ -176,3 +176,5 @@ cython_debug/
 # Random files
 birthdays.json
 reaction_roles_msg.txt
+qwerty-attendance-4f218a2cad1f.json
+attendance_config.json

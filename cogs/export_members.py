@@ -13,12 +13,14 @@ class ExportMembers(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    # !export_realnames - Command to export member names to a JSON file
     @commands.command(name="export_realnames")  # Command to export member names
     @commands.is_owner() # Ensure only the bot owner can use this command
 
     async def export_realnames(self, ctx):
         guild = ctx.guild # Get the guild (server) where the command was invoked
         name_map = {str(member.id): member.display_name for member in guild.members if not member.bot}   # Create a dictionary mapping user IDs to display names, excluding bots
+        
         # Save the name map to a JSON file
         # This file will be created in the same directory as the script
         with open("name_map.json", "w", encoding="utf-8") as f:
