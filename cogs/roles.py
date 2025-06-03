@@ -2,6 +2,9 @@
 # It contains role management commands that users can interact with.
 # The bot allows users to set up reaction roles, where users can react to a message to get a role.
 # Written by Aiden Nemeroff
+
+# Needed dependencies:
+# discord.py
 import discord
 from discord.ext import commands
 import os

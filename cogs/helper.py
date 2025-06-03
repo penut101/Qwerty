@@ -1,6 +1,9 @@
 # This is a cog for the Qwerty Bot
 # It contains helper commands that users can interact with.
 # Written by Aiden Nemeroff
+
+# Needed dependencies:
+# discord.py
 import discord
 from discord.ext import commands
 
@@ -40,14 +43,14 @@ class HelperCog(commands.Cog):
 
 
     @commands.command()
-    # Get the link to the mastersheet
+    # !mastersheet - Get the link to the mastersheet
     async def mastersheet(self, ctx):
         """Get the link to the mastersheet."""
         link = "https://docs.google.com/spreadsheets/d/1m84Ayqyl1vF-2EMA6lk7Quf_xFqOw19T04egipTGN70/edit?gid=0#gid=0"
         await ctx.send(f"{ctx.author.mention}, here’s the link! 👉 {link} 🎉")
 
     @commands.command()
-    # Get the list of Eboard Members
+    # !eboard - Get the list of Eboard Members
     async def eboard(self, ctx):
         """Get the list of Eboard Members."""
         eboard_list = (
@@ -65,7 +68,7 @@ class HelperCog(commands.Cog):
         await ctx.send(f"{ctx.author.mention}, here’s the Eboard members! 👉\n```{eboard_list}```")
 
     @commands.command()
-    # Get the list of Gboard Members 
+    # !gboard - Get the list of Gboard Members 
     async def gboard(self, ctx):
         """Get the list of Gboard Members."""
         gboard_list = (

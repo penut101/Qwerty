@@ -2,6 +2,10 @@
 # It contains birthday management commands that users can interact with.
 # The bot allows users to set, remove, and check their birthdays, as well as view a birthday calendar.
 # Written by Aiden Nemeroff
+
+# Needed dependencies:
+# discord.py
+# Pillow (PIL) for image manipulation
 import discord
 from discord.ext import commands, tasks
 import json

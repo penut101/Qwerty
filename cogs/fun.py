@@ -1,6 +1,9 @@
 # This is a cog for the Qwerty Bot
 # It contains fun commands that users can interact with.
 # Written by Aiden Nemeroff
+
+# Needed dependencies:
+# discord.py
 import discord
 from discord.ext import commands
 import random
@@ -8,6 +11,7 @@ import random
 class FunCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        # Dictionary to hold the responses for the magic 8-ball and fun facts
         self.eight_ball_responses = [
             "Yes!", "Nope.", "Maybe...", "Definitely!", "Absolutely not.",
             "Ask again later.", "Without a doubt.", "I'm not sure.", "Signs point to yes."
@@ -59,12 +63,14 @@ class FunCog(commands.Cog):
         """Ask the magic 8-ball a question."""
         response = random.choice(self.eight_ball_responses)
         await ctx.send(f"🎱 {response}")
+
 # !fact - Get a random fun fact
     @commands.command()
     async def fact(self, ctx):
         """Get a random fun fact."""
         fact = random.choice(self.facts)
         await ctx.send(f"📚 Fun Fact: {fact}")
+
 # !vibecheck - Check if you pass the vibe check
     @commands.command()
     async def vibecheck(self, ctx):
@@ -74,6 +80,7 @@ class FunCog(commands.Cog):
             await ctx.send("✅ You passed the vibe check!")
         else:
             await ctx.send("❌ You failed the vibe check. Better luck next time!")
+            
 # !coinflip - Flip a coin
     @commands.command()
     async def coinflip(self, ctx):
