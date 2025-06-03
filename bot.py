@@ -29,6 +29,8 @@ async def main():
     await bot.load_extension("cogs.roles")
     await bot.load_extension("cogs.helper")
     await bot.load_extension("cogs.fun")
+    await bot.load_extension("cogs.attendance")
+#   await bot.load_extension("cogs.export_members") # Uncomment if you want to export member names
     await bot.start(TOKEN)
 
 asyncio.run(main())
