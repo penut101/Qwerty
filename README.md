@@ -46,6 +46,10 @@ Qwerty is a feature-packed Discord bot built for **Kappa Theta Pi**. It helps wi
 ### 1. Clone the Repo
 
 ```bash
-git clone https://github.com/yourusername/qwerty-bot.git
+git clone https://github.com/penut101/qwerty.git
 cd qwerty-bot
 ```
+
+### 2. Follow the ([Installation Guide](INSTALLATION_GUIDE.md))
+
+- If you need any help feel free to reach out!!
