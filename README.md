@@ -40,7 +40,7 @@ Qwerty is a feature-packed Discord bot built for **Kappa Theta Pi**. It helps wi
 - `!coinflip` — Flip a coin.
 - `!typefight <difficulty>` — Start a typing speed game. Difficulty levels: `easy`, `medium`, `hard`.
 - `!typefightleaderboard <difficulty>` — View the top TypeFight scorers per level.
-- `!resettfboard` _(admin only)_ — Reset the TypeFight leaderboard.
+- `!resettypefight` _(admin only)_ — Reset the TypeFight leaderboard.
 
 ---
 
