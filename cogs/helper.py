@@ -33,9 +33,8 @@ class HelperCog(commands.Cog):
             "`!fact` - Get a random fun fact\n"
             "`!vibecheck` - See if you pass the vibe check\n"
             "`!coinflip` - Flip a coin\n\n"
-
-            "**📌 Role Commands:**\n"
-            "`!setuproles` - (Admin) Post a message for users to get roles via reactions\n"
+            "`!typefight <difficulty>` — Start a typing speed game. Difficulty levels: `easy`, `medium`, `hard`."
+            "`!typefightleaderboard <difficulty>` — View the top TypeFight scorers per difficulty."
         )
 
         await ctx.send(f"{ctx.author.mention}, here’s everything I can do! 🧠\n```markdown\n{help_message}```")
