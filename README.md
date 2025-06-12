@@ -38,6 +38,9 @@ Qwerty is a feature-packed Discord bot built for **Kappa Theta Pi**. It helps wi
 - `!fact` — Get a random fun fact.
 - `!vibecheck` — See if you pass the vibe check.
 - `!coinflip` — Flip a coin.
+- `!typefight <difficulty>` — Start a typing speed game. Difficulty levels: `easy`, `medium`, `hard`.
+- `!typefightleaderboard <difficulty>` — View the top TypeFight scorers per level.
+- `!resettfboard` _(admin only)_ — Reset the TypeFight leaderboard.
 
 ---
 

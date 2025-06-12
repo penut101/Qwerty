@@ -7,6 +7,10 @@
 import discord
 from discord.ext import commands
 import random
+import asyncio
+import time
+import json
+import os
 
 class FunCog(commands.Cog):
     def __init__(self, bot):
@@ -57,6 +61,85 @@ class FunCog(commands.Cog):
             "Humans share about 60% of their DNA with bananas.",
             "Octopuses have nine brains.",
             ]
+        self.typefight_phrases = {
+            "easy": [
+                "hello",
+                "discord",
+                "bot",
+                "python",
+                "fast typing",
+                "qwerty",
+                "Coding is fun",
+                "Type fast",
+                "Practice makes perfect",
+                "Hello, World!",
+                "snail",
+                "banana",
+                "tangerine",
+                "monkey",
+                "pizza",
+                "turtle",
+                "slack",
+                "Node.js",
+            ],
+            "medium": [
+                "Macaroni and cheese",
+                "You miss 100% of the shots you don't take",
+                "A wild qwerty appears!",
+                "Type this as fast as you can",
+                "The quick brown fox jumps over the lazy dog",
+                "Welcome to the TypeFight challenge!",
+                "Kappa Theta Pi",
+                "For the love of technology",
+                "Fast fingers win the game"
+                "Practice makes perfect",
+                "Coding is fun",
+                "Keep calm and type on",
+                "Always commit your code",
+                "The only limit is your imagination",
+                "Python is a great programming language",
+                "Hello, World! This is a typing challenge.",
+                "Type this sentence as fast as you can",
+                "Visual Studio Code",
+                "Microsoft Surface Pro",
+                "Teenage Mutant Ninja Turtles",
+                "Why did the chicken cross the road?",
+                "Hypertext Markup Language",
+                "https://www.example.com",
+            ],
+            "hard": [
+                "print('Hello, World!');",
+                "It's not a bug, it's an undocumented feature.",
+                "How much wood would a woodchuck chuck if a woodchuck could chuck wood?",
+                "Supercalifragilisticexpialidocious",
+                "Kappa Theta Pi is the best fraternity ever",
+                "This bot was written in Python",
+                "Qwerty was created by Aiden Nemeroff",
+                "while(True): print('Never ending loop')",
+                "The mitochondrion is the powerhouse of the cell.",                
+            ]
+        }
+        self.leaderboard_file = "typefight_leaderboard.json"
+
+    # Load the leaderboard from a JSON file
+    def load_leaderboard(self):
+        if os.path.exists(self.leaderboard_file):
+            with open(self.leaderboard_file, "r") as f:
+                return json.load(f)
+        return {}
+    
+    # Write to the leaderboard
+    def save_leaderboard(self, data):
+        with open(self.leaderboard_file, "w") as f:
+            json.dump(data, f, indent=4)
+
+    # Update the leaderboard with a user's win
+    def update_leaderboard(self, user_id, username, level):
+        data = self.load_leaderboard()
+        if user_id not in data:
+            data[user_id] = {"name": username, "easy": 0, "medium": 0, "hard": 0}
+        data[user_id][level] += 1
+        self.save_leaderboard(data)
 
 # !eightball - Ask the magic 8-ball a question
     @commands.command()
@@ -88,6 +171,73 @@ class FunCog(commands.Cog):
         """Flip a coin."""
         result = random.choice(["Heads", "Tails"])
         await ctx.send(f"🪙 {result}")
+
+# !typefight <difficulty> - Start a typing challenge
+    @commands.command()
+    async def typefight(self, ctx, level: str = "medium"):
+        """Start a typing challenge at a given difficulty level."""
+        level = level.lower()
+        if level not in self.typefight_phrases:
+            await ctx.send("❌ Invalid level! Use `easy`, `medium`, or `hard`.")
+            return
+
+        phrase = random.choice(self.typefight_phrases[level])
+        await ctx.send(f"🎯 **{level.capitalize()} Mode**\n⌛ Get ready to type in 3 seconds...")
+        await asyncio.sleep(3) # Wait for 3 seconds before starting the challenge
+        await ctx.send(f"⚡ First to type: **`{phrase}`**")
+
+        # Define a check function to verify the message
+        def check(m):
+            return m.channel == ctx.channel and m.content.strip() == phrase 
+
+        try:
+            start = time.time()
+            msg = await self.bot.wait_for("message", check=check, timeout=30)
+            end = time.time()
+            duration = round(end - start, 2)
+            await ctx.send(f"🏆 {msg.author.mention} wins in {duration} seconds!")
+
+            self.update_leaderboard(str(msg.author.id), str(msg.author), level)
+
+        except asyncio.TimeoutError:
+            await ctx.send("⏱️ Time's up! No one typed it correctly.")
+
+    # !typefightleaderboard <difficulty> - View the TypeFight leaderboard
+    @commands.command()
+    async def typefightleaderboard(self, ctx, level: str = "medium"):
+        """View the top TypeFight players for a given difficulty."""
+        level = level.lower()
+        if level not in ["easy", "medium", "hard"]:
+            await ctx.send("❌ Invalid level! Use `easy`, `medium`, or `hard`.")
+            return
+
+        data = self.load_leaderboard()
+        sorted_data = sorted(
+            data.items(),
+            key=lambda x: x[1][level],
+            reverse=True
+        )
+
+        if not sorted_data or all(user[1][level] == 0 for user in sorted_data):
+            await ctx.send(f"📉 No wins recorded yet for `{level}` level.")
+            return
+
+        leaderboard = "\n".join(
+            [f"**{i+1}.** {entry[1]['name']} — {entry[1][level]} win(s)"
+             for i, entry in enumerate(sorted_data[:10])]
+        )
+
+        await ctx.send(
+            f"🏆 **Top TypeFighters — {level.capitalize()}**\n\n{leaderboard}"
+        )
+
+    # !resettypefight - Reset the TypeFight leaderboard (Admin only)
+    @commands.command(name="resettypefight")
+    @commands.has_permissions(administrator=True)
+    async def reset_typefight_leaderboard(self, ctx):
+        """(Admin only) Reset the TypeFight leaderboard."""
+        self.save_leaderboard({})
+        await ctx.send("🧹 TypeFight leaderboard has been reset.")
 
 async def setup(bot):
     await bot.add_cog(FunCog(bot))
