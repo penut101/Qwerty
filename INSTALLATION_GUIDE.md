@@ -94,7 +94,8 @@ qwerty-bot/
 │   ├── roles.py
 │   ├── attendance.py
 │   ├── helper.py
-│   └── fun.py
+│   ├── fun.py
+    └── export_members.py
 └── README.md             # Feature overview and usage
 ```
 
