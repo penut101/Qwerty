@@ -66,6 +66,35 @@ questions = [
     "Do you have any suggestions for new features?",
     "What is your favorite part of the bot?",
 ]
+# Event-specific questions
+event_questions = {
+    "volunteer hours": [
+        "How many hours did you volunteer today & for what Organization?"
+    ],
+    "brotherhood event": [
+        "What was your favorite part of the event?",
+        "Who did you connect with the most?",
+        "Would you attend another event like this?"
+    ],
+    "networking event": [
+        "What event did you attend?"
+    ],
+    "chapter meeting": [
+        "Did you find the meeting productive?",
+        "What topics were most relevant to you?",
+        "Any suggestions for the next meeting?"
+    ],
+    "board meeting": [
+        "What insights did you gain from today’s meeting?",
+        "What would you change for the next one?",
+        "Were your concerns addressed?"
+    ],
+    "rush event": [
+        "What did you enjoy about the event?",
+        "Do you think this helped with recruitment?",
+        "What could we improve?"
+    ]
+}
 
 class Attendance(commands.Cog):
     def __init__(self, bot):
@@ -93,7 +122,8 @@ class Attendance(commands.Cog):
         matched_event = get_event_by_code(content)
         if matched_event:
             timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-            question = random.choice(questions)
+            question_list = event_questions.get(matched_event.lower(), questions)
+            question = random.choice(question_list)
 
             username = str(user)
             real_name = ID_MAP.get(str(user.id), "Unknown")

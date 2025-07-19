@@ -10,8 +10,7 @@ from discord.ext import commands
 class HelperCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
-
+        
     @commands.command()
     # Get a list of commands
     async def help(self, ctx):
@@ -45,7 +44,7 @@ class HelperCog(commands.Cog):
     # !mastersheet - Get the link to the mastersheet
     async def mastersheet(self, ctx):
         """Get the link to the mastersheet."""
-        link = "https://docs.google.com/spreadsheets/d/1m84Ayqyl1vF-2EMA6lk7Quf_xFqOw19T04egipTGN70/edit?gid=0#gid=0"
+        link = "https://docs.google.com/spreadsheets/d/1B6FqP82Z6yxfYrwbLGxEwBThZUMl6n1NnLL3TKbzCfo/edit?usp=sharing"
         await ctx.send(f"{ctx.author.mention}, here’s the link! 👉 {link} 🎉")
 
     @commands.command()
