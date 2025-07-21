@@ -98,8 +98,13 @@ class BirthdayCog(commands.Cog):
             try:
                 bday_month, bday_day = map(int, bday.split("-"))
                 if bday_month == month:
-                    user = await self.bot.fetch_user(int(user_id))
-                    day_birthdays[bday_day].append(user.name)
+                    member = ctx.guild.get_member(int(user_id)) or await ctx.guild.fetch_member(int(user_id))
+                    if member:
+                        day_birthdays[bday_day].append(member.display_name)
+                    else:
+                        # If the member is not in the guild, fetch the user directly
+                        user = await self.bot.fetch_user(int(user_id))
+                        day_birthdays[bday_day].append(user.display_name)
             except Exception:
                 continue
 
@@ -111,6 +116,7 @@ class BirthdayCog(commands.Cog):
         width, height = 715, 590
         cell_w, cell_h = 100, 75
         padding_top = 160
+
         # Define colors
         # You can change these colors to match your theme (e.g., QWERTY Bot colors)
         bg_color = "#006b8f"
@@ -119,10 +125,11 @@ class BirthdayCog(commands.Cog):
         text_color = "#333"
         bday_color = "#3498DB"
 
+        # Create the image
         try:
-            font_title = ImageFont.truetype("fira.ttf", 32)
-            font_day = ImageFont.truetype("fira.ttf", 20)
-            font_name = ImageFont.truetype("fira.ttf", 16)
+            font_title = ImageFont.truetype("fira.ttf", 36)
+            font_day = ImageFont.truetype("fira.ttf", 24)
+            font_name = ImageFont.truetype("fira.ttf", 22)
         except:
             font_title = ImageFont.load_default()
             font_day = ImageFont.load_default()
