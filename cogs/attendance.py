@@ -69,7 +69,7 @@ questions = [
 # Event-specific questions
 event_questions = {
     "volunteer hours": [
-        "How many hours did you volunteer today & for what Organization?"
+        "How many hours did you volunteer for?"
     ],
     "brotherhood event": [
         "What was your favorite part of the event?",
@@ -87,7 +87,8 @@ event_questions = {
     "board meeting": [
         "What insights did you gain from today’s meeting?",
         "What would you change for the next one?",
-        "Were your concerns addressed?"
+        "Were your concerns addressed?",
+        "Anything to add for next time?"
     ],
     "rush event": [
         "What did you enjoy about the event?",
