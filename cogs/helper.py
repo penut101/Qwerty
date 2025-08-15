@@ -18,6 +18,7 @@ class HelperCog(commands.Cog):
         help_message = (
             "**📌 General Commands:**\n"
             "`!mastersheet` - Get the link to the mastersheet\n"
+            "`!library` - View the KTP Library\n"
             "`!eboard` - View the list of Eboard Members\n"
             "`!gboard` - View the list of Gboard Members\n\n"
 
@@ -80,6 +81,13 @@ class HelperCog(commands.Cog):
             "Brotherhood: Lexi Shainoff"
         )
         await ctx.send(f"{ctx.author.mention}, here’s the Gboard members! 👉\n```{gboard_list}```")
+
+    @commands.command()
+    # !library - View the KTP Library
+    async def library(self, ctx):
+        """View the KTP Library."""
+        library_link = "https://drive.google.com/drive/folders/1VF71eiYQBZEFti79nTn-kPPwVyPdcKWb?usp=drive_link"
+        await ctx.send(f"{ctx.author.mention}, here’s the Gboard members! 👉\n```{library_link}```")
 
 async def setup(bot):
     await bot.add_cog(HelperCog(bot))

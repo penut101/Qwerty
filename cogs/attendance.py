@@ -66,18 +66,17 @@ questions = [
     "Do you have any suggestions for new features?",
     "What is your favorite part of the bot?",
 ]
+
 # Event-specific questions
 event_questions = {
     "volunteer hours": [
         "How many hours did you volunteer for?"
     ],
     "brotherhood event": [
-        "What was your favorite part of the event?",
-        "Who did you connect with the most?",
-        "Would you attend another event like this?"
+        "1. Post Picture to Photo Circle: 1 point\n2. Attend a Rush Event as a Brother: 1 point \n3. Hanging out with KTP Brothers outside of Chapter: 1 point\n4. Going to KTP Social Event\n5. Attend Study Hours: 1 point\n6. Post KTP Related Content on Social Media (Reposting does not count): 1 point\n7. Wear KTP T-Shirt: 1 point\n8. Partake in Hackathon: 3 points"
     ],
     "networking event": [
-        "What event did you attend?"
+        "1. Attend a fundraising Event: 1 point\n2. Attend a Philanthropy Event: 1 point\n3. Attend a Networking Event: 1 point\n4. Attending Career Fair: 1 point\n5. Help with recruitment/referring new brothers: 2 points",
     ],
     "chapter meeting": [
         "Did you find the meeting productive?",
@@ -89,11 +88,6 @@ event_questions = {
         "What would you change for the next one?",
         "Were your concerns addressed?",
         "Anything to add for next time?"
-    ],
-    "rush event": [
-        "What did you enjoy about the event?",
-        "Do you think this helped with recruitment?",
-        "What could we improve?"
     ]
 }
 
