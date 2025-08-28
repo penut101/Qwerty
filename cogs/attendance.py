@@ -79,9 +79,7 @@ event_questions = {
         "1. Attend a fundraising Event: 1 point\n2. Attend a Philanthropy Event: 1 point\n3. Attend a Networking Event: 1 point\n4. Attending Career Fair: 1 point\n5. Help with recruitment/referring new brothers: 2 points",
     ],
     "chapter meeting": [
-        "Did you find the meeting productive?",
-        "What topics were most relevant to you?",
-        "Any suggestions for the next meeting?"
+        "What are you most excited for this semester?",
     ],
     "board meeting": [
         "What insights did you gain from today’s meeting?",
