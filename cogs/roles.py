@@ -14,7 +14,10 @@ reaction_roles = {
     "🎮": "Gamer",
     "🎵": "Music",
     "🧗": "Rock Climbing",
-    "🍔": "Foodie"
+    "🍔": "Foodie",
+    "🏋️‍♂️": "Gym",
+    "🎱": "Pool",
+    "🏓": "Ping Pong"
 }
 
 class RolesCog(commands.Cog):
@@ -31,7 +34,12 @@ class RolesCog(commands.Cog):
             "🎮 = Gamer\n"
             "🎵 = Music\n"
             "🧗 = Rock Climbing\n"
-            "🍔 = Foodie"
+            "🍔 = Foodie\n"
+            "🏋️‍♂️ = Gym\n"
+            "🎱 = Pool\n"
+            "🏓 = Ping Pong"
+
+
         )
         # Add reactions to the message for each role
         for emoji in reaction_roles:
