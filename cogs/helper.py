@@ -87,7 +87,7 @@ class HelperCog(commands.Cog):
     async def library(self, ctx):
         """View the KTP Library."""
         library_link = "https://drive.google.com/drive/folders/1VF71eiYQBZEFti79nTn-kPPwVyPdcKWb?usp=drive_link"
-        await ctx.send(f"{ctx.author.mention}, here’s the Gboard members! 👉\n```{library_link}```")
+        await ctx.send(f"{ctx.author.mention}, here’s the Library Link! 👉\n``{library_link}``")
 
 async def setup(bot):
     await bot.add_cog(HelperCog(bot))
