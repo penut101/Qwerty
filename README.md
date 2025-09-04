@@ -1,58 +1,119 @@
-# 🤖 Qwerty Bot
+# 🧰 Qwerty Bot Installation & Setup Guide
 
-Qwerty is a feature-packed Discord bot built for **Kappa Theta Pi**. It helps with birthday reminders, reaction-based role assignments, fun commands, attendance tracking, and quick access to essential org info.
-
----
-
-## 🚀 Features
-
-### 🎉 Birthday Tools
-
-- `!setbirthday MM-DD` — Set your birthday.
-- `!removebirthday` — Delete your saved birthday.
-- `!mybirthday` — Check your saved birthday.
-- `!birthdayboard` — View a monthly birthday calendar with member names.
-- ⏰ Sends **daily birthday wishes at 8 AM** with fun randomized messages.
-
-### 🎭 Reaction Roles
-
-- `!setuproles` _(admin only)_ — Posts a message where members can react to assign themselves roles.
-- Adds or removes roles automatically when members react/unreact with specific emojis.
-
-### 🗳️ Attendance Tracking
-
-- Members can **DM a specific attendance code** (e.g. `ktp2025`) to log meeting attendance.
-- After checking in, the bot sends a **fun follow-up question** to collect feedback.
-- All responses are automatically **logged into a connected Google Sheet** with real names via a nickname/user ID mapping.
-- `!export_realnames` _(owner only)_ — Generates `name_map.json` based on server display names for mapping.
-
-### 📌 Org Info & Quick Links
-
-- `!mastersheet` — Get the link to the master Google Sheet.
-- `!eboard` — See current Eboard members.
-- `!gboard` — See current Gboard members.
-
-### 🎲 Fun Commands
-
-- `!eightball <question>` — Ask the magic 8-ball a question.
-- `!fact` — Get a random fun fact.
-- `!vibecheck` — See if you pass the vibe check.
-- `!coinflip` — Flip a coin.
-- `!typefight <difficulty>` — Start a typing speed game. Difficulty levels: `easy`, `medium`, `hard`.
-- `!typefightleaderboard <difficulty>` — View the top TypeFight scorers per level.
-- `!resettypefight` _(admin only)_ — Reset the TypeFight leaderboard.
+Welcome to the setup guide for **Qwerty**, the all-in-one Discord bot built for Kappa Theta Pi. This guide will walk you through everything you need to clone, configure, and run the bot on your own server.
 
 ---
 
-## 🛠 Setup Instructions
+## ✅ Prerequisites
 
-### 1. Clone the Repo
+- Python 3.10 or later
+- pip (Python package installer)
+- Git (optional)
+- A Discord bot token ([create one here](https://discord.com/developers/applications))
+- (Optional) Google Sheets service credentials for attendance logging
+
+---
+
+## 📥 Step 1: Clone the Repository
+
+Clone the bot using Git:
 
 ```bash
 git clone https://github.com/penut101/qwerty.git
 cd qwerty-bot
 ```
 
-### 2. Follow the ([Installation Guide](INSTALLATION_GUIDE.md))
+Or download the ZIP from GitHub and extract it manually.
 
-- If you need any help feel free to reach out!!
+---
+
+## 📦 Step 2: Install Dependencies
+
+Ensure you're in the project folder and run:
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## 🔐 Step 3: Set Up Environment Variables
+
+Create a `.env` file in the root directory of the project and add:
+
+```
+DISCORD_TOKEN=your_discord_bot_token
+BIRTHDAY_CHANNEL_ID=your_channel_id_here
+```
+
+If using Google Sheets for attendance, also include:
+
+```
+GOOGLE_SHEETS_CREDENTIALS=path/to/your/credentials.json
+```
+
+> ⚠️ Make sure `.env` and your credentials JSON file are **not** committed to your repo.
+
+---
+
+## 🚀 Step 4: Run the Bot
+
+Run the bot with:
+
+```bash
+python bot.py
+```
+
+You should see:
+```
+✅ Bot is ready! Logged in as Qwerty#XXXX
+```
+
+---
+
+## 🧪 Step 5: Invite Qwerty to Your Server
+
+1. Go to the [Discord Developer Portal](https://discord.com/developers/applications).
+2. Under your bot application, go to **OAuth2 > URL Generator**.
+3. Select:
+   - **Scopes**: `bot`
+   - **Bot Permissions**: `Send Messages`, `Manage Roles`, `Read Message History`, etc.
+4. Copy the generated invite link and open it in your browser.
+5. Select the server and invite Qwerty.
+
+---
+
+## 🗂 Folder Structure
+
+```
+qwerty-bot/
+├── bot.py                # Main bot launcher
+├── .env                  # Secret environment variables (not included in repo)
+├── requirements.txt      # Dependency list
+├── cogs/                 # Modular bot commands
+│   ├── birthdays.py
+│   ├── roles.py
+│   ├── attendance.py
+│   ├── helper.py
+│   ├── fun.py
+│   ├── rainbow.py
+│   ├── typefight.py
+│   └── export_members.py
+└── README.md             # Feature overview and usage
+```
+
+---
+
+## 🔧 Optional Configuration
+
+You can customize:
+- Roles and emojis in `roles.py`
+- Birthday message styles and timezone in `birthdays.py`
+- Google Sheet logic in `attendance.py`
+- Add new commands to `fun.py` or make your own cog
+
+---
+
+## 💬 Need Help?
+
+Feel free to reach out at **aidennemeroff@gmail.com**

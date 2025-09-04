@@ -95,6 +95,8 @@ qwerty-bot/
 │   ├── attendance.py
 │   ├── helper.py
 │   ├── fun.py
+│   ├── rainbow.py
+│   ├── typefight.py
 │   └── export_members.py
 └── README.md             # Feature overview and usage
 ```
