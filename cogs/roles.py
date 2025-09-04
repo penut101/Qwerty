@@ -8,6 +8,7 @@
 import discord
 from discord.ext import commands
 import os
+import asyncio
 
 # List of roles and their corresponding emojis
 reaction_roles = {
@@ -17,8 +18,10 @@ reaction_roles = {
     "🍔": "Foodie",
     "🏋️‍♂️": "Gym",
     "🎱": "Pool",
-    "🏓": "Ping Pong"
+    "🏓": "Ping Pong",
+    "🌈": "LGBTQ+",
 }
+
 
 class RolesCog(commands.Cog):
     def __init__(self, bot):
@@ -37,14 +40,13 @@ class RolesCog(commands.Cog):
             "🍔 = Foodie\n"
             "🏋️‍♂️ = Gym\n"
             "🎱 = Pool\n"
-            "🏓 = Ping Pong"
-
-
+            "🏓 = Ping Pong\n"
+            "🌈 = LGBTQ+"
         )
         # Add reactions to the message for each role
         for emoji in reaction_roles:
             await msg.add_reaction(emoji)
-            
+
         # Save the message ID to a file for later reference
         with open("reaction_roles_msg.txt", "w") as f:
             f.write(str(msg.id))
@@ -91,6 +93,7 @@ class RolesCog(commands.Cog):
             role = discord.utils.get(guild.roles, name=role_name)
             if role:
                 await member.remove_roles(role)
+
 
 async def setup(bot):
     await bot.add_cog(RolesCog(bot))

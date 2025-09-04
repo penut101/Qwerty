@@ -12,6 +12,7 @@ import calendar
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
+
 class BirthdayCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -20,21 +21,23 @@ class BirthdayCog(commands.Cog):
     # ---------------- Utility: JSON ----------------
     def load_birthdays(self):
         try:
-            with open('birthdays.json', 'r', encoding="utf-8") as f:
+            with open("birthdays.json", "r", encoding="utf-8") as f:
                 return json.load(f)
         except FileNotFoundError:
             return {}
 
     def save_birthdays(self, data):
-        with open('birthdays.json', 'w', encoding="utf-8") as f:
+        with open("birthdays.json", "w", encoding="utf-8") as f:
             json.dump(data, f, indent=4)
 
     # ---------------- Utility: Font ----------------
     def load_font(self, size: int) -> ImageFont.FreeTypeFont:
         """Try system Fira, then bundled fira.ttf, then default."""
         candidates = [
-            "/usr/share/fonts/truetype/firacode/FiraCode-Regular.ttf",   # apt install fonts-firacode
-            str(Path(__file__).resolve().parent.parent / "fira.ttf"),   # bundled font in project root
+            "/usr/share/fonts/truetype/firacode/FiraCode-Regular.ttf",  # apt install fonts-firacode
+            str(
+                Path(__file__).resolve().parent.parent / "fira.ttf"
+            ),  # bundled font in project root
         ]
         for path in candidates:
             if Path(path).exists():
@@ -54,7 +57,9 @@ class BirthdayCog(commands.Cog):
             birthdays = self.load_birthdays()
             birthdays[user_id] = date
             self.save_birthdays(birthdays)
-            await ctx.send(f"{ctx.author.mention}, your birthday has been set to {date} 🎉")
+            await ctx.send(
+                f"{ctx.author.mention}, your birthday has been set to {date} 🎉"
+            )
         except ValueError:
             await ctx.send("Invalid date format! Use MM-DD.")
 
@@ -76,9 +81,13 @@ class BirthdayCog(commands.Cog):
         user_id = str(ctx.author.id)
         birthdays = self.load_birthdays()
         if user_id in birthdays:
-            await ctx.send(f"{ctx.author.mention}, your birthday is set to {birthdays[user_id]} 🎂")
+            await ctx.send(
+                f"{ctx.author.mention}, your birthday is set to {birthdays[user_id]} 🎂"
+            )
         else:
-            await ctx.send("You haven't set your birthday yet. Use `!setbirthday MM-DD`.")
+            await ctx.send(
+                "You haven't set your birthday yet. Use `!setbirthday MM-DD`."
+            )
 
     # ---------------- Birthday Board ----------------
     @commands.command()
@@ -141,10 +150,15 @@ class BirthdayCog(commands.Cog):
             text_color = "#333333"
             bday_color = "#3498DB"
 
-            
-            font_title = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 36)
-            font_day   = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
-            font_name  = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf", 22)
+            font_title = ImageFont.truetype(
+                "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 30
+            )
+            font_day = ImageFont.truetype(
+                "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 20
+            )
+            font_name = ImageFont.truetype(
+                "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf", 16
+            )
 
             img = Image.new("RGB", (width, height), bg_color)
             draw = ImageDraw.Draw(img)
@@ -163,7 +177,12 @@ class BirthdayCog(commands.Cog):
 
             # Weekday headers
             for i, day_name in enumerate(calendar.day_abbr):
-                draw.text((i * cell_w + 30, padding_top + 20), day_name, fill="white", font=font_day)
+                draw.text(
+                    (i * cell_w + 30, padding_top + 20),
+                    day_name,
+                    fill="white",
+                    font=font_day,
+                )
 
             # Calendar grid
             first_weekday, _ = calendar.monthrange(year, month)
@@ -177,12 +196,21 @@ class BirthdayCog(commands.Cog):
                         continue
                     if day > num_days:
                         break
-                    draw.rounded_rectangle([x + 5, y + 5, x + cell_w - 5, y + cell_h - 5],
-                                           radius=10, fill=tile_color, outline="#dddddd")
+                    draw.rounded_rectangle(
+                        [x + 5, y + 5, x + cell_w - 5, y + cell_h - 5],
+                        radius=10,
+                        fill=tile_color,
+                        outline="#dddddd",
+                    )
                     draw.text((x + 10, y + 8), str(day), fill=text_color, font=font_day)
                     if day_birthdays.get(day):
                         for i, name in enumerate(day_birthdays[day][:3]):
-                            draw.text((x + 10, y + 25 + i * 15), f"🎂 {name[:20]}", fill=bday_color, font=font_name)
+                            draw.text(
+                                (x + 10, y + 25 + i * 15),
+                                f"🎂 {name[:20]}",
+                                fill=bday_color,
+                                font=font_name,
+                            )
                     day += 1
 
             out_path = f"birthday_board_{month}.png"
@@ -194,11 +222,13 @@ class BirthdayCog(commands.Cog):
             await ctx.send(f"⚠️ Could not generate image: {e}")
 
     # ---------------- Daily Birthday Checker ----------------
-    @tasks.loop(time=datetime.strptime("08:00", "%H:%M").time())
+    @tasks.loop(
+        time=datetime.strptime("12:00", "%H:%M").time()
+    )  # Runs at 8am EST (12pm UTC)
     async def check_birthdays(self):
         today = datetime.now().strftime("%m-%d")
         birthdays = self.load_birthdays()
-        channel = self.bot.get_channel(int(os.getenv('BIRTHDAY_CHANNEL_ID')))
+        channel = self.bot.get_channel(int(os.getenv("BIRTHDAY_CHANNEL_ID")))
         birthday_messages = [
             "🎉 Happy Birthday, {mention}! 🎂 Wishing you a day full of cake and joy!",
             "🎈 {mention}, it's your special day! Have an amazing birthday! 🎁",
@@ -209,7 +239,7 @@ class BirthdayCog(commands.Cog):
             "🍰 {mention}, sending you good vibes and sweet treats today!",
             "🎁 It’s party time for {mention}! Happy Birthday!!!",
             "🧁 Happy Birthday to the legend {mention}! Have a blast!",
-            "✨ {mention}, cheers to another year of greatness! Happy Birthday!"
+            "✨ {mention}, cheers to another year of greatness! Happy Birthday!",
         ]
         for user_id, date in birthdays.items():
             if date == today:
@@ -217,6 +247,7 @@ class BirthdayCog(commands.Cog):
                 if user and channel:
                     msg = random.choice(birthday_messages).format(mention=user.mention)
                     await channel.send(msg)
+
 
 async def setup(bot):
     await bot.add_cog(BirthdayCog(bot))
