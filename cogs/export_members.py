@@ -13,7 +13,7 @@ class ExportMembers(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    # !export_realnames - Command to export member names to a JSON file
+    # !export_realnames - Command to export member names to a JSON file (bot owner only)
     @commands.command(name="export_realnames")  # Command to export member names
     @commands.is_owner() # Ensure only the bot owner can use this command
 
