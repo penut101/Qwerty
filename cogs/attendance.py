@@ -26,23 +26,30 @@ with open("name_map.json", "r", encoding="utf-8") as f:
     ID_MAP = json.load(f)
 
 # Google Sheets setup
-scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+scope = [
+    "https://spreadsheets.google.com/feeds",
+    "https://www.googleapis.com/auth/drive",
+]
 # Authenticate using the service account credentials (this is the JSON file you downloaded from Google Cloud Console)
-creds = ServiceAccountCredentials.from_json_keyfile_name("qwerty-attendance-4f218a2cad1f.json", scope)
+creds = ServiceAccountCredentials.from_json_keyfile_name(
+    "qwerty-attendance-4f218a2cad1f.json", scope
+)
 # Authorize the client (this is the client that will interact with Google Sheets gotten from the creds)
 client = gspread.authorize(creds)
-# Open the Google Sheet by its ID and select the first sheet (you can change this to select a different sheet 
+# Open the Google Sheet by its ID and select the first sheet (you can change this to select a different sheet
 # Example: Differnet sheets for different semesters
 sheet = client.open_by_key(SHEET_ID).sheet1
 
 # Attendance config file
 CONFIG_FILE = "attendance_config.json"
 
+
 # load or initialize the attendance codes configuration
 def load_codes():
     with open(CONFIG_FILE, "r", encoding="utf-8") as f:
         return json.load(f).get("codes", {})
-    
+
+
 # Save a new attendance code for an event
 def save_code(event_name, code):
     with open(CONFIG_FILE, "r", encoding="utf-8") as f:
@@ -50,7 +57,8 @@ def save_code(event_name, code):
     data["codes"][event_name.lower()] = code.strip().lower()
     with open(CONFIG_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
-        
+
+
 # Get the event name by its code
 def get_event_by_code(code):
     codes = load_codes()
@@ -58,6 +66,7 @@ def get_event_by_code(code):
         if event_code == code.strip().lower():
             return event
     return None
+
 
 # Random questions to ask users after they check in
 questions = [
@@ -69,9 +78,7 @@ questions = [
 
 # Event-specific questions
 event_questions = {
-    "volunteer hours": [
-        "How many hours did you volunteer for?"
-    ],
+    "volunteer hours": ["How many hours did you volunteer for?"],
     "brotherhood event": [
         "1. Post Picture to Photo Circle: 1 point\n2. Attend a Rush Event as a Brother: 1 point \n3. Hanging out with KTP Brothers outside of Chapter: 1 point\n4. Going to KTP Social Event\n5. Attend Study Hours: 1 point\n6. Post KTP Related Content on Social Media (Reposting does not count): 1 point\n7. Wear KTP T-Shirt: 1 point\n8. Partake in Hackathon: 3 points"
     ],
@@ -85,9 +92,10 @@ event_questions = {
         "What insights did you gain from today’s meeting?",
         "What would you change for the next one?",
         "Were your concerns addressed?",
-        "Anything to add for next time?"
-    ]
+        "Anything to add for next time?",
+    ],
 }
+
 
 class Attendance(commands.Cog):
     def __init__(self, bot):
@@ -114,6 +122,22 @@ class Attendance(commands.Cog):
 
         matched_event = get_event_by_code(content)
         if matched_event:
+            # 🆕 Special case: Absent code
+            if matched_event.lower() == "absent":
+                # Ask the user why they will be absent
+                await user.send(
+                    "📝 I see you marked yourself as absent. Why will you be absent?"
+                )
+
+                # Store state so we know to expect a response
+                self.awaiting_response[user.id] = {
+                    "type": "absent",
+                    "username": str(user),
+                    "real_name": ID_MAP.get(str(user.id), "Unknown"),
+                }
+                return
+
+            # ✅ Normal attendance handling
             timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
             question_list = event_questions.get(matched_event.lower(), questions)
             question = random.choice(question_list)
@@ -122,11 +146,12 @@ class Attendance(commands.Cog):
             real_name = ID_MAP.get(str(user.id), "Unknown")
 
             self.awaiting_response[user.id] = {
+                "type": "attendance",
                 "username": username,
                 "real_name": real_name,
                 "timestamp": timestamp,
                 "question": question,
-                "event": matched_event
+                "event": matched_event,
             }
 
             await user.send(
@@ -137,15 +162,35 @@ class Attendance(commands.Cog):
 
         elif user.id in self.awaiting_response:
             data = self.awaiting_response.pop(user.id)
-            answer = message.content.strip()
-            row = [
-                data["username"], data["real_name"], data["timestamp"],
-                data["event"], data["question"], answer
-            ]
-            sheet.append_row(row)
-            await user.send("📌 Thanks! Your response has been recorded.")
+            if data["type"] == "absent":
+                reason = message.content.strip()
+
+                # Confirm to user
+                await user.send("📌 Thanks! Your absence reason has been noted.")
+
+                # Notify the bot owner (replace with your Discord ID)
+                admin_user = await self.bot.fetch_user(636578131435847706)
+                await admin_user.send(
+                    f"⚠️ {data['real_name'] if data['real_name'] != 'Unknown' else data['username']} "
+                    f"reported ABSENT.\n\n📝 Reason: {reason}"
+                )
+            else:
+                # Handle normal attendance follow-up answer
+                answer = message.content.strip()
+                row = [
+                    data["username"],
+                    data["real_name"],
+                    data["timestamp"],
+                    data["event"],
+                    data["question"],
+                    answer,
+                ]
+                sheet.append_row(row)
+                await user.send("📌 Thanks! Your response has been recorded.")
         else:
-            await user.send("❌ Invalid code. Please try again with the correct attendance phrase.")
+            await user.send(
+                "❌ Invalid code. Please try again with the correct attendance phrase."
+            )
 
     # !setcode <eventname> <codename> - Command to set a new attendance code for an event via DM (ADMIN ONLY)
     @commands.command(name="setcode")
@@ -162,7 +207,9 @@ class Attendance(commands.Cog):
 
         # Save the code and confirm to the admin
         save_code(event, new_code)
-        await ctx.send(f"✅ Code for event `{event}` set to: `{new_code.strip().lower()}`")
+        await ctx.send(
+            f"✅ Code for event `{event}` set to: `{new_code.strip().lower()}`"
+        )
 
     # !removecode <eventname> - Command to remove an attendance code for an event via DM (ADMIN ONLY)
     @commands.command(name="removecode")
