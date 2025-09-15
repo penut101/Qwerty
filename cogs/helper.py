@@ -7,10 +7,11 @@
 import discord
 from discord.ext import commands
 
+
 class HelperCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        
+
     @commands.command()
     # Get a list of commands
     async def help(self, ctx):
@@ -21,13 +22,12 @@ class HelperCog(commands.Cog):
             "`!library` - View the KTP Library\n"
             "`!eboard` - View the list of Eboard Members\n"
             "`!gboard` - View the list of Gboard Members\n\n"
-
+            "`!photocircle` - Get the link to the Photo Circle\n\n"
             "**🎉 Birthday Commands:**\n"
             "`!setbirthday MM-DD` - Set your birthday\n"
             "`!removebirthday` - Remove your saved birthday\n"
             "`!mybirthday` - Check your current birthday\n"
             "`!birthdayboard` - View the birthday calendar\n\n"
-
             "**🎲 Fun Commands:**\n"
             "`!eightball <question>` - Ask the magic 8-ball a question\n"
             "`!fact` - Get a random fun fact\n"
@@ -37,9 +37,10 @@ class HelperCog(commands.Cog):
             "`!typefightleaderboard <difficulty>` — View the top TypeFight scorers per difficulty."
         )
 
-        await ctx.send(f"{ctx.author.mention}, here’s everything I can do! 🧠\n```markdown\n{help_message}```")
+        await ctx.send(
+            f"{ctx.author.mention}, here’s everything I can do! 🧠\n```markdown\n{help_message}```"
+        )
         await ctx.send("If you need help with anything else, feel free to ask! 😊")
-
 
     @commands.command()
     # !mastersheet - Get the link to the mastersheet
@@ -64,10 +65,12 @@ class HelperCog(commands.Cog):
             "VP of Marketing: Hunter Foster\n"
             "VP of DEIB: Mike Puthumana"
         )
-        await ctx.send(f"{ctx.author.mention}, here’s the Eboard members! 👉\n```{eboard_list}```")
+        await ctx.send(
+            f"{ctx.author.mention}, here’s the Eboard members! 👉\n```{eboard_list}```"
+        )
 
     @commands.command()
-    # !gboard - Get the list of Gboard Members 
+    # !gboard - Get the list of Gboard Members
     async def gboard(self, ctx):
         """Get the list of Gboard Members."""
         gboard_list = (
@@ -80,14 +83,28 @@ class HelperCog(commands.Cog):
             "New Member Ed: Mason Pavelik\n"
             "Brotherhood: Lexi Shainoff"
         )
-        await ctx.send(f"{ctx.author.mention}, here’s the Gboard members! 👉\n```{gboard_list}```")
+        await ctx.send(
+            f"{ctx.author.mention}, here’s the Gboard members! 👉\n```{gboard_list}```"
+        )
 
     @commands.command()
     # !library - View the KTP Library
     async def library(self, ctx):
         """View the KTP Library."""
         library_link = "https://drive.google.com/drive/folders/1VF71eiYQBZEFti79nTn-kPPwVyPdcKWb?usp=drive_link"
-        await ctx.send(f"{ctx.author.mention}, here’s the Library Link! 👉\n``{library_link}``")
+        await ctx.send(
+            f"{ctx.author.mention}, here’s the Library Link! 👉\n``{library_link}``"
+        )
+
+    # !photocircle - Get the link to the Photo Circle.
+    @commands.command()
+    async def photocircle(self, ctx):
+        """Get the link to the Photo Circle."""
+        photocircle_link = "https://join.photocircleapp.com/7CS260R3FA"
+        await ctx.send(
+            f"{ctx.author.mention}, here’s the Photo Circle Link! 👉\n``{photocircle_link}``"
+        )
+
 
 async def setup(bot):
     await bot.add_cog(HelperCog(bot))

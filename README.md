@@ -98,6 +98,8 @@ qwerty-bot/
 │   ├── fun.py
 │   ├── rainbow.py
 │   ├── typefight.py
+│   ├── hangman.py
+│   ├── wordscramble.py
 │   └── export_members.py
 └── README.md             # Feature overview and usage
 ```
