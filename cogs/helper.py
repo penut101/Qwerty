@@ -79,7 +79,7 @@ class HelperCog(commands.Cog):
             "Philanthropy: Chris Berarducci\n"
             "Alumni: Margo Brown\n"
             "Scholarship: Sumayyah Borders\n"
-            "Assistant Recruitment: Kesley Hall\n"
+            "Assistant Recruitment: Kelsey Hall\n"
             "New Member Ed: Mason Pavelik\n"
             "Brotherhood: Lexi Shainoff"
         )
