@@ -35,6 +35,10 @@ class HelperCog(commands.Cog):
             "`!coinflip` - Flip a coin\n\n"
             "`!typefight <difficulty>` — Start a typing speed game. Difficulty levels: `easy`, `medium`, `hard`."
             "`!typefightleaderboard <difficulty>` — View the top TypeFight scorers per difficulty."
+            "`!hangman` — Start a game of Hangman.\n"
+            "`!guess <letter>` — Guess a letter in Hangman.\n"
+            "`!solve <word>` — Attempt to solve the Hangman puzzle.\n"
+            "`!hangmanscoreboard` — View the Hangman leaderboard.\n"
         )
 
         await ctx.send(

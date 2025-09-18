@@ -159,7 +159,7 @@ class Attendance(commands.Cog):
                 f"Your attendance for **{matched_event}** has been recorded.\n\n"
                 f"🧠 Quick question:\n**{question}**"
             )
-
+        # Special case: Track Absences
         elif user.id in self.awaiting_response:
             data = self.awaiting_response.pop(user.id)
             if data["type"] == "absent":
@@ -172,7 +172,22 @@ class Attendance(commands.Cog):
                 admin_user = await self.bot.fetch_user(636578131435847706)
                 await admin_user.send(
                     f"⚠️ {data['real_name'] if data['real_name'] != 'Unknown' else data['username']} "
-                    f"reported ABSENT.\n\n📝 Reason: {reason}"
+                    f"reported Absent\n\n📝 Reason: {reason}"
+                )
+
+        # Special case: Brotherhood Points Reporting
+        elif user.id in self.awaiting_response:
+            data = self.awaiting_response.pop(user.id)
+            if data["type"] == "brotherhood":
+                reason = message.content.strip()
+                # Confirm to user
+                await user.send("📌 Thanks! Your brotherhood points has been recorded.")
+
+                # Notify the bot owner (replace with your Discord ID)
+                admin_user = await self.bot.fetch_user(371447423752732674)
+                await admin_user.send(
+                    f"⚠️ {data['real_name'] if data['real_name'] != 'Unknown' else data['username']} "
+                    f"reported Brotherhood Points\n\n📝 Reason: {reason}"
                 )
             else:
                 # Handle normal attendance follow-up answer
