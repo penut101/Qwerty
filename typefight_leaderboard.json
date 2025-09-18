@@ -1,1 +1,33 @@
-{}
+{
+    "404772490204807171": {
+        "name": "penut101",
+        "easy": {
+            "wins": 0,
+            "time": 0.0,
+            "best": null,
+            "current_streak": 0,
+            "best_streak": 0
+        },
+        "medium": {
+            "wins": 1,
+            "time": 6.43,
+            "best": 6.43,
+            "current_streak": 1,
+            "best_streak": 1
+        },
+        "hard": {
+            "wins": 0,
+            "time": 0.0,
+            "best": null,
+            "current_streak": 0,
+            "best_streak": 0
+        },
+        "demon": {
+            "wins": 0,
+            "time": 0.0,
+            "best": null,
+            "current_streak": 0,
+            "best_streak": 0
+        }
+    }
+}

@@ -33,6 +33,8 @@ WORDS = [
     "achievement",
     "success",
     "motivation",
+    "inspiration",
+    "determination",
 ]
 SCORE_FILE = "scramble_scores.json"
 
@@ -112,26 +114,60 @@ class WordScramble(commands.Cog):
     @commands.command()
     async def scramblescore(self, ctx, member: discord.Member = None):
         """Show Word Scramble scoreboard"""
-        if member:
+        member = member or ctx.author
+
+        # If specific member
+        if member.id in self.scores:
             score = self.scores[member.id]
-            await ctx.send(
-                f"📊 **{member.display_name}'s Scramble Score**\nWins: {score['wins']} | Losses: {score['losses']}"
+            total_games = score["wins"] + score["losses"]
+            win_rate = (
+                round((score["wins"] / total_games) * 100, 2) if total_games > 0 else 0
             )
+
+            embed = discord.Embed(
+                title=f"📊 Word Scramble Stats for {member.display_name}",
+                color=discord.Color.blue(),
+            )
+            embed.add_field(name="🏆 Wins", value=score["wins"], inline=True)
+            embed.add_field(name="❌ Losses", value=score["losses"], inline=True)
+            embed.add_field(name="📈 Win Rate", value=f"{win_rate}%", inline=True)
+
+            await ctx.send(embed=embed)
+
+        # If no member specified → show top players
         else:
             if not self.scores:
-                await ctx.send("📊 No scramble games played yet!")
+                await ctx.send("📉 No scramble games played yet!")
                 return
+
             top_players = sorted(
                 self.scores.items(), key=lambda x: x[1]["wins"], reverse=True
             )[:5]
-            desc = "\n".join(
-                [
-                    f"**{ctx.guild.get_member(uid).display_name}** — Wins: {score['wins']}, Losses: {score['losses']}"
-                    for uid, score in top_players
-                    if ctx.guild.get_member(uid)
-                ]
+
+            embed = discord.Embed(
+                title="🏅 Top Word Scramble Players", color=discord.Color.gold()
             )
-            await ctx.send(f"📊 **Top Scramble Players**\n{desc}")
+
+            for rank, (uid, score) in enumerate(top_players, 1):
+                member = ctx.guild.get_member(uid)
+                if member:
+                    total_games = score["wins"] + score["losses"]
+                    win_rate = (
+                        round((score["wins"] / total_games) * 100, 2)
+                        if total_games > 0
+                        else 0
+                    )
+                    embed.add_field(
+                        name=f"#{rank} — {member.display_name}",
+                        value=(
+                            f"🏆 Wins: {score['wins']}\n"
+                            f"❌ Losses: {score['losses']}\n"
+                            f"📈 Win Rate: {win_rate}%"
+                        ),
+                        inline=False,
+                    )
+
+            await ctx.send(embed=embed)
 
 
 async def setup(bot):
