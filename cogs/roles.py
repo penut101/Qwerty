@@ -11,6 +11,7 @@ import os
 import asyncio
 
 # List of roles and their corresponding emojis
+# List of roles and their corresponding emojis
 reaction_roles = {
     "🎮": "Gamer",
     "🎵": "Music",
@@ -20,6 +21,16 @@ reaction_roles = {
     "🎱": "Pool",
     "🏓": "Ping Pong",
     "🌈": "LGBTQ+",
+    "💻": "Computer Science",
+    "📊": "Information Science",
+    "🧬": "Computational Biology",
+    "🎨": "Digital Interactive & Design",
+    "📈": "Data Science",
+    "⚛️": "Physics and Quantum Computing",
+    "💵": "Economics",
+    "📚": "English Literature",
+    "🖥️": "Computer Engineering",
+    "➗": "Mathematics",
 }
 
 
@@ -41,7 +52,17 @@ class RolesCog(commands.Cog):
             "🏋️‍♂️ = Gym\n"
             "🎱 = Pool\n"
             "🏓 = Ping Pong\n"
-            "🌈 = LGBTQ+"
+            "🌈 = LGBTQ+\n"
+            "💻 = Computer Science\n"
+            "📊 = Information Science\n"
+            "🧬 = Computational Biology\n"
+            "🎨 = Digital Interactive & Design\n"
+            "📈 = Data Science\n"
+            "⚛️ = Physics and Quantum Computing\n"
+            "💵 = Economics\n"
+            "📚 = English Literature\n"
+            "🖥️ = Computer Engineering\n"
+            "➗ = Mathematics"
         )
         # Add reactions to the message for each role
         for emoji in reaction_roles:
@@ -93,6 +114,48 @@ class RolesCog(commands.Cog):
             role = discord.utils.get(guild.roles, name=role_name)
             if role:
                 await member.remove_roles(role)
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def setupmajorroles(self, ctx):
+        """Create all major roles and add them to reaction_roles (Admin only)."""
+        majors_with_emojis = {
+            "💻": "Computer Science",
+            "📊": "Information Science",
+            "🧬": "Computational Biology",
+            "🎨": "Digital Interactive & Design",
+            "📈": "Data Science",
+            "⚛️": "Physics and Quantum Computing",
+            "💵": "Economics",
+            "📚": "English Literature",
+            "🖥️": "Computer Engineering",
+            "➗": "Mathematics",
+        }
+
+        guild = ctx.guild
+        created = []
+        already = []
+
+        # Ensure majors exist as roles
+        for emoji, major in majors_with_emojis.items():
+            role = discord.utils.get(guild.roles, name=major)
+            if role is None:
+                await guild.create_role(name=major)
+                created.append(major)
+            else:
+                already.append(major)
+
+            # Update global reaction_roles dict
+            if emoji not in reaction_roles:
+                reaction_roles[emoji] = major
+
+        msg = ""
+        if created:
+            msg += f"✅ Created roles: {', '.join(created)}\n"
+        if already:
+            msg += f"ℹ️ Already existing: {', '.join(already)}\n"
+        msg += "📌 Majors added to reaction roles for `!setuproles`."
+        await ctx.send(msg)
 
 
 async def setup(bot):
