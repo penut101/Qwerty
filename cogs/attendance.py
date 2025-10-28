@@ -14,6 +14,7 @@ import random
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
+import pytz
 import json
 from dotenv import load_dotenv
 
@@ -138,7 +139,8 @@ class Attendance(commands.Cog):
                 return
 
             # ✅ Normal attendance handling
-            timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+            eastern = pytz.timezone("US/Eastern")
+            timestamp = datetime.now(eastern).strftime("%Y-%m-%d %H:%M:%S")
             question_list = event_questions.get(matched_event.lower(), questions)
             question = random.choice(question_list)
 

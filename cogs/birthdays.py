@@ -6,7 +6,8 @@ import discord
 from discord.ext import commands, tasks
 import json
 import random
-from datetime import datetime
+from datetime import datetime, time
+import pytz
 import os
 import calendar
 from pathlib import Path
@@ -223,10 +224,11 @@ class BirthdayCog(commands.Cog):
 
     # ---------------- Daily Birthday Checker ----------------
     @tasks.loop(
-        time=datetime.strptime("12:00", "%H:%M").time()
-    )  # Runs at 8am EST (12pm UTC)
+        time=time(12, 0, tzinfo=pytz.timezone("US/Eastern"))
+    )  # 12:00 PM Eastern
     async def check_birthdays(self):
-        today = datetime.now().strftime("%m-%d")
+        eastern = pytz.timezone("US/Eastern")
+        today = datetime.now(eastern).strftime("%m-%d")
         birthdays = self.load_birthdays()
         channel = self.bot.get_channel(int(os.getenv("BIRTHDAY_CHANNEL_ID")))
         birthday_messages = [
@@ -241,6 +243,7 @@ class BirthdayCog(commands.Cog):
             "🧁 Happy Birthday to the legend {mention}! Have a blast!",
             "✨ {mention}, cheers to another year of greatness! Happy Birthday!",
         ]
+
         for user_id, date in birthdays.items():
             if date == today:
                 user = await self.bot.fetch_user(int(user_id))
@@ -248,6 +251,5 @@ class BirthdayCog(commands.Cog):
                     msg = random.choice(birthday_messages).format(mention=user.mention)
                     await channel.send(msg)
 
-
-async def setup(bot):
-    await bot.add_cog(BirthdayCog(bot))
+    async def setup(bot):
+        await bot.add_cog(BirthdayCog(bot))
