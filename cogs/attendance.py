@@ -87,7 +87,7 @@ event_questions = {
         "1. Attend a fundraising Event: 1 point\n2. Attend a Philanthropy Event: 1 point\n3. Attend a Networking Event: 1 point\n4. Attending Career Fair: 1 point\n5. Help with recruitment/referring new brothers: 2 points",
     ],
     "chapter meeting": [
-        "What are you most excited for this semester?",
+        "What did you dress as for Halloween?",
     ],
     "board meeting": [
         "What insights did you gain from today’s meeting?",
@@ -170,8 +170,8 @@ class Attendance(commands.Cog):
                 # Confirm to user
                 await user.send("📌 Thanks! Your absence reason has been noted.")
 
-                # Notify the bot owner (replace with your Discord ID)
-                admin_user = await self.bot.fetch_user(636578131435847706)
+                # Notify the bot owner (replace with your Discord ID) (Jess Wagner - 1141776326420856862)
+                admin_user = await self.bot.fetch_user(1141776326420856862)
                 await admin_user.send(
                     f"⚠️ {data['real_name'] if data['real_name'] != 'Unknown' else data['username']} "
                     f"reported ABSENT.\n\n📝 Reason: {reason}"
