@@ -33,19 +33,33 @@ class BirthdayCog(commands.Cog):
 
     # ---------------- Utility: Font ----------------
     def load_font(self, size: int) -> ImageFont.FreeTypeFont:
-        """Try system Fira, then bundled fira.ttf, then default."""
-        candidates = [
-            "/usr/share/fonts/truetype/firacode/FiraCode-Regular.ttf",  # apt install fonts-firacode
-            str(
-                Path(__file__).resolve().parent.parent / "fira.ttf"
-            ),  # bundled font in project root
-        ]
-        for path in candidates:
-            if Path(path).exists():
-                try:
+        """Try bundled fira.ttf, then system fonts, then default."""
+        try:
+            # First try bundled font
+            font_path = Path(__file__).resolve().parent.parent / "fira.ttf"
+            if font_path.exists():
+                return ImageFont.truetype(str(font_path), size)
+
+            # Try system fonts on Windows
+            if os.name == "nt":
+                windows_font = "arial.ttf"
+                system_font_path = os.path.join(
+                    os.environ["WINDIR"], "Fonts", windows_font
+                )
+                if os.path.exists(system_font_path):
+                    return ImageFont.truetype(system_font_path, size)
+
+            # Try system fonts on Linux
+            linux_fonts = [
+                "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+                "/usr/share/fonts/truetype/firacode/FiraCode-Regular.ttf",
+            ]
+            for path in linux_fonts:
+                if Path(path).exists():
                     return ImageFont.truetype(path, size)
-                except Exception:
-                    continue
+        except Exception as e:
+            print(f"Font loading error: {e}")
+
         return ImageFont.load_default()
 
     # ---------------- Commands ----------------
@@ -151,15 +165,10 @@ class BirthdayCog(commands.Cog):
             text_color = "#333333"
             bday_color = "#3498DB"
 
-            font_title = ImageFont.truetype(
-                "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 30
-            )
-            font_day = ImageFont.truetype(
-                "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 20
-            )
-            font_name = ImageFont.truetype(
-                "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf", 16
-            )
+            # Use our custom font loader for all fonts
+            font_title = self.load_font(30)
+            font_day = self.load_font(20)
+            font_name = self.load_font(16)
 
             img = Image.new("RGB", (width, height), bg_color)
             draw = ImageDraw.Draw(img)
@@ -251,5 +260,10 @@ class BirthdayCog(commands.Cog):
                     msg = random.choice(birthday_messages).format(mention=user.mention)
                     await channel.send(msg)
 
-    async def setup(bot):
-        await bot.add_cog(BirthdayCog(bot))
+    @check_birthdays.before_loop
+    async def before_check_birthdays(self):
+        await self.bot.wait_until_ready()
+
+
+async def setup(bot):
+    await bot.add_cog(BirthdayCog(bot))
