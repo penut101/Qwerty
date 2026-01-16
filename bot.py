@@ -26,7 +26,7 @@ intents.reactions = True
 intents.guilds = True
 
 # This is the main bot instance. Using commands.Bot for hybrid support.
-bot = commands.Bot(command_prefix=None, intents=intents)
+bot = commands.Bot(command_prefix="!", intents=intents)
 
 
 @bot.event
