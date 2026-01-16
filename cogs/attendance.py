@@ -9,6 +9,7 @@
 # oauth2client
 import discord
 from discord.ext import commands
+from discord import app_commands
 import os
 import random
 import gspread
@@ -104,9 +105,9 @@ class Attendance(commands.Cog):
         self.awaiting_response = {}
 
     # Helper method to check if the user has the Admin role in any of the bot's guilds
-    async def is_admin(self, ctx):
+    async def is_admin(self, interaction):
         for guild in self.bot.guilds:
-            member = guild.get_member(ctx.author.id)
+            member = guild.get_member(interaction.user.id)
             if member and any(role.name == "Admin" for role in member.roles):
                 return True
         return False
@@ -195,35 +196,37 @@ class Attendance(commands.Cog):
             )
 
     # !setcode <eventname> <codename> - Command to set a new attendance code for an event via DM (ADMIN ONLY)
-    @commands.command(name="setcode")
-    async def set_attendance_code(self, ctx, event: str, *, new_code: str):
+    @app_commands.describe(event="The event name", new_code="The new attendance code")
+    @app_commands.command(name="setcode", description="Command to set a new attendance code for an event via DM (ADMIN ONLY)")
+    async def set_attendance_code(self, interaction: discord.Interaction, event: str, new_code: str):
         # Check if the command is used in a DM
-        if not isinstance(ctx.channel, discord.DMChannel):
-            await ctx.send("❌ This command can only be used in DMs.")
+        if not isinstance(interaction.channel, discord.DMChannel):
+            await interaction.response.send_message("❌ This command can only be used in DMs.")
             return
 
         # Check if user has Admin role
-        if not await self.is_admin(ctx):
-            await ctx.send("⛔ You don't have permission to set attendance codes.")
+        if not await self.is_admin(interaction):
+            await interaction.response.send_message("⛔ You don't have permission to set attendance codes.")
             return
 
         # Save the code and confirm to the admin
         save_code(event, new_code)
-        await ctx.send(
+        await interaction.response.send_message(
             f"✅ Code for event `{event}` set to: `{new_code.strip().lower()}`"
         )
 
     # !removecode <eventname> - Command to remove an attendance code for an event via DM (ADMIN ONLY)
-    @commands.command(name="removecode")
-    async def remove_attendance_code(self, ctx, event: str):
+    @app_commands.describe(event="The event name to remove the code for")
+    @app_commands.command(name="removecode", description="Command to remove an attendance code for an event via DM (ADMIN ONLY)")
+    async def remove_attendance_code(self, interaction: discord.Interaction, event: str):
         # Check if the command is used in a DM
-        if not isinstance(ctx.channel, discord.DMChannel):
-            await ctx.send("❌ This command can only be used in DMs.")
+        if not isinstance(interaction.channel, discord.DMChannel):
+            await interaction.response.send_message("❌ This command can only be used in DMs.")
             return
 
         # Check if user has Admin role
-        if not await self.is_admin(ctx):
-            await ctx.send("⛔ You don't have permission to remove attendance codes.")
+        if not await self.is_admin(interaction):
+            await interaction.response.send_message("⛔ You don't have permission to remove attendance codes.")
             return
 
         # Load the existing codes
@@ -239,34 +242,34 @@ class Attendance(commands.Cog):
             with open(CONFIG_FILE, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2)
 
-            await ctx.send(f"🗑️ Code for `{event}` has been removed.")
+            await interaction.response.send_message(f"🗑️ Code for `{event}` has been removed.")
         else:
-            await ctx.send(f"⚠️ No code found for event `{event}`.")
+            await interaction.response.send_message(f"⚠️ No code found for event `{event}`.")
 
     # !listcodes - Command to list all attendance codes via DM (ADMIN ONLY)
-    @commands.command(name="listcodes")
-    async def list_attendance_codes(self, ctx):
+    @app_commands.command(name="listcodes", description="Command to list all attendance codes via DM (ADMIN ONLY)")
+    async def list_attendance_codes(self, interaction: discord.Interaction):
         # Check if the command is used in a DM
-        if not isinstance(ctx.channel, discord.DMChannel):
-            await ctx.send("❌ This command can only be used in DMs.")
+        if not isinstance(interaction.channel, discord.DMChannel):
+            await interaction.response.send_message("❌ This command can only be used in DMs.")
             return
 
         # Check if user has Admin role
-        if not await self.is_admin(ctx):
-            await ctx.send("⛔ You don't have permission to view the attendance codes.")
+        if not await self.is_admin(interaction):
+            await interaction.response.send_message("⛔ You don't have permission to view the attendance codes.")
             return
 
         # Load and display all attendance codes
         codes = load_codes()
         if not codes:
-            await ctx.send("⚠️ No attendance codes are currently set.")
+            await interaction.response.send_message("⚠️ No attendance codes are currently set.")
             return
 
         message = "**📋 Attendance Codes:**\n"
         for event, code in codes.items():
             message += f"• `{event}` → `{code}`\n"
 
-        await ctx.send(message)
+        await interaction.response.send_message(message)
 
 
 async def setup(bot):

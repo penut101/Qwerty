@@ -7,6 +7,7 @@
 # requrements.txt
 import discord
 from discord.ext import commands
+from discord import app_commands
 from dotenv import load_dotenv
 import os
 import asyncio
@@ -24,14 +25,17 @@ intents.message_content = True
 intents.reactions = True
 intents.guilds = True
 
-# This is the main bot instance. The command_prefix is set to '!', which means users can invoke commands with a '!' prefix.
-bot = commands.Bot(command_prefix="!", intents=intents, help_command=None)
+# This is the main bot instance. Using commands.Bot for hybrid support.
+bot = commands.Bot(command_prefix=None, intents=intents)
 
 
 @bot.event
 async def on_ready():
     # This event is called when the bot is ready and has logged in successfully.
     print(f"✅ Bot is ready! Logged in as {bot.user}.")
+    # Sync slash commands
+    await bot.tree.sync()
+    print("✅ Slash commands synced.")
 
 
 # This is where we load the cogs for the bot. Each cog contains a specific functionality.

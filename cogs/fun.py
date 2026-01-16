@@ -4,6 +4,7 @@
 
 import discord
 from discord.ext import commands
+from discord import app_commands
 import random
 
 
@@ -65,35 +66,36 @@ class FunCog(commands.Cog):
         ]
 
     #!8ball <question> - Ask the magic 8-ball a question
-    @commands.command()
-    async def eightball(self, ctx, *, question: str):
+    @app_commands.command(name="eightball", description="Ask the magic 8-ball a question")
+    @app_commands.describe(question="The question to ask the magic 8-ball")
+    async def eightball(self, interaction: discord.Interaction, question: str):
         """Ask the magic 8-ball a question."""
         response = random.choice(self.eight_ball_responses)
-        await ctx.send(f"🎱 {response}")
+        await interaction.response.send_message(f"🎱 {response}")
 
     #!fact - Get a random fun fact
-    @commands.command()
-    async def fact(self, ctx):
+    @app_commands.command(name="fact", description="Get a random fun fact")
+    async def fact(self, interaction: discord.Interaction):
         """Get a random fun fact."""
         fact = random.choice(self.facts)
-        await ctx.send(f"📚 Fun Fact: {fact}")
+        await interaction.response.send_message(f"📚 Fun Fact: {fact}")
 
     #!vibecheck - Check if you pass the vibe check
-    @commands.command()
-    async def vibecheck(self, ctx):
+    @app_commands.command(name="vibecheck", description="Check if you pass the vibe check")
+    async def vibecheck(self, interaction: discord.Interaction):
         """Check if you pass the vibe check."""
         passed = random.choice([True, False])
         if passed:
-            await ctx.send("✅ You passed the vibe check!")
+            await interaction.response.send_message("✅ You passed the vibe check!")
         else:
-            await ctx.send("❌ You failed the vibe check. Better luck next time!")
+            await interaction.response.send_message("❌ You failed the vibe check. Better luck next time!")
 
     #!coinflip - Flip a coin
-    @commands.command()
-    async def coinflip(self, ctx):
+    @app_commands.command(name="coinflip", description="Flip a coin")
+    async def coinflip(self, interaction: discord.Interaction):
         """Flip a coin."""
         result = random.choice(["Heads", "Tails"])
-        await ctx.send(f"🪙 {result}")
+        await interaction.response.send_message(f"🪙 {result}")
 
 
 async def setup(bot):

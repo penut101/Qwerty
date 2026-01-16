@@ -4,6 +4,7 @@
 
 import discord
 from discord.ext import commands, tasks
+from discord import app_commands
 import json
 import random
 from datetime import datetime, time
@@ -63,56 +64,57 @@ class BirthdayCog(commands.Cog):
         return ImageFont.load_default()
 
     # ---------------- Commands ----------------
-    @commands.command()
-    async def setbirthday(self, ctx, date: str):
-        """!setbirthday MM-DD - Set your birthday"""
+    @app_commands.describe(date="The birthday date in MM-DD format")
+    @app_commands.command(name="setbirthday", description="Set your birthday")
+    async def setbirthday(self, interaction: discord.Interaction, date: str):
+        """Set your birthday"""
         try:
             datetime.strptime(date, "%m-%d")
-            user_id = str(ctx.author.id)
+            user_id = str(interaction.user.id)
             birthdays = self.load_birthdays()
             birthdays[user_id] = date
             self.save_birthdays(birthdays)
-            await ctx.send(
-                f"{ctx.author.mention}, your birthday has been set to {date} 🎉"
+            await interaction.response.send_message(
+                f"{interaction.user.mention}, your birthday has been set to {date} 🎉"
             )
         except ValueError:
-            await ctx.send("Invalid date format! Use MM-DD.")
+            await interaction.response.send_message("Invalid date format! Use MM-DD.")
 
-    @commands.command()
-    async def removebirthday(self, ctx):
-        """!removebirthday - Remove your birthday"""
-        user_id = str(ctx.author.id)
+    @app_commands.command(name="removebirthday", description="Remove your saved birthday")
+    async def removebirthday(self, interaction: discord.Interaction):
+        """Remove your birthday"""
+        user_id = str(interaction.user.id)
         birthdays = self.load_birthdays()
         if user_id in birthdays:
             del birthdays[user_id]
             self.save_birthdays(birthdays)
-            await ctx.send(f"{ctx.author.mention}, your birthday has been removed.")
+            await interaction.response.send_message(f"{interaction.user.mention}, your birthday has been removed.")
         else:
-            await ctx.send("You don't have a birthday set.")
+            await interaction.response.send_message("You don't have a birthday set.")
 
-    @commands.command()
-    async def mybirthday(self, ctx):
-        """!mybirthday - Check your birthday"""
-        user_id = str(ctx.author.id)
+    @app_commands.command(name="mybirthday", description="Check your current birthday")
+    async def mybirthday(self, interaction: discord.Interaction):
+        """Check your birthday"""
+        user_id = str(interaction.user.id)
         birthdays = self.load_birthdays()
         if user_id in birthdays:
-            await ctx.send(
-                f"{ctx.author.mention}, your birthday is set to {birthdays[user_id]} 🎂"
+            await interaction.response.send_message(
+                f"{interaction.user.mention}, your birthday is set to {birthdays[user_id]} 🎂"
             )
         else:
-            await ctx.send(
-                "You haven't set your birthday yet. Use `!setbirthday MM-DD`."
+            await interaction.response.send_message(
+                "You haven't set your birthday yet. Use `/setbirthday MM-DD`."
             )
 
     # ---------------- Birthday Board ----------------
-    @commands.command()
-    async def birthdayboard(self, ctx):
-        """!birthdayboard - Displays a calendar with member birthdays"""
+    @app_commands.command(name="birthdayboard", description="View the birthday calendar")
+    async def birthdayboard(self, interaction: discord.Interaction):
+        """Displays a calendar with member birthdays"""
         try:
             with open("birthdays.json", "r", encoding="utf-8") as f:
                 data = json.load(f)
         except FileNotFoundError:
-            await ctx.send("🎂 No birthday data found.")
+            await interaction.response.send_message("🎂 No birthday data found.")
             return
 
         now = datetime.now()
@@ -130,12 +132,12 @@ class BirthdayCog(commands.Cog):
                 continue
             uid = int(user_id)
             name = None
-            member = ctx.guild.get_member(uid)
+            member = interaction.guild.get_member(uid)
             if member:
                 name = member.display_name
             else:
                 try:
-                    member = await ctx.guild.fetch_member(uid)
+                    member = await interaction.guild.fetch_member(uid)
                     name = member.display_name
                 except Exception:
                     try:
@@ -225,11 +227,11 @@ class BirthdayCog(commands.Cog):
 
             out_path = f"birthday_board_{month}.png"
             img.save(out_path)
-            await ctx.send(file=discord.File(out_path))
+            await interaction.response.send_message(file=discord.File(out_path))
             return
 
         except Exception as e:
-            await ctx.send(f"⚠️ Could not generate image: {e}")
+            await interaction.response.send_message(f"⚠️ Could not generate image: {e}")
 
     # ---------------- Daily Birthday Checker ----------------
     @tasks.loop(

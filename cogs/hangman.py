@@ -4,6 +4,7 @@
 
 import discord
 from discord.ext import commands
+from discord import app_commands
 import random
 from collections import defaultdict
 import json
@@ -142,71 +143,72 @@ class Hangman(commands.Cog):
     # -------------------- Commands --------------------
 
     # !hangman - Start a new game of Hangman
-    @commands.command()
-    async def hangman(self, ctx):
+    @app_commands.command(name="hangman", description="Start a new game of Hangman")
+    async def hangman(self, interaction: discord.Interaction):
         """Start a new game of Hangman"""
-        if ctx.channel.id in self.games:
-            await ctx.send("⚠️ A game is already in progress in this channel!")
+        if interaction.channel.id in self.games:
+            await interaction.response.send_message("⚠️ A game is already in progress in this channel!")
             return
 
         word = random.choice(WORDS)
-        game = self.create_game(word, ctx.author.id)
-        self.games[ctx.channel.id] = game
+        game = self.create_game(word, interaction.user.id)
+        self.games[interaction.channel.id] = game
 
-        await ctx.send(
-            f"🎮 **Hangman started by {ctx.author.display_name}!** 🎮\n"
+        await interaction.response.send_message(
+            f"🎮 **Hangman started by {interaction.user.display_name}!** 🎮\n"
             f"{HANGMAN_PICS[0]}\n"
             f"Word: {self.display_word(word, game['guessed'])}\n"
-            f"Guess letters with `!guess <letter>` or solve with `!solve <word>`."
+            f"Guess letters with `/guess <letter>` or solve with `/solve <word>`."
         )
 
     # !guess <letter> - Guess a letter in Hangman
-    @commands.command()
-    async def guess(self, ctx, letter: str):
+    @app_commands.describe(letter="The letter to guess")
+    @app_commands.command(name="guess", description="Guess a letter in Hangman")
+    async def guess(self, interaction: discord.Interaction, letter: str):
         """Guess a letter in Hangman"""
-        if ctx.channel.id not in self.games:
-            await ctx.send("❌ No active game here. Start one with `!hangman`.")
+        if interaction.channel.id not in self.games:
+            await interaction.response.send_message("❌ No active game here. Start one with `/hangman`.")
             return
 
-        game = self.games[ctx.channel.id]
+        game = self.games[interaction.channel.id]
         word = game["word"]
 
         if len(letter) != 1 or not letter.isalpha():
-            await ctx.send("⚠️ Please guess a single letter (a-z).")
+            await interaction.response.send_message("⚠️ Please guess a single letter (a-z).")
             return
 
         letter = letter.lower()
 
         if letter in game["guessed"]:
-            await ctx.send(f"⚠️ You already guessed `{letter}`!")
+            await interaction.response.send_message(f"⚠️ You already guessed `{letter}`!")
             return
 
         game["guessed"].add(letter)
 
         if letter in word:
             if all(l in game["guessed"] for l in word):
-                self.scores[ctx.author.id]["wins"] += 1
+                self.scores[interaction.user.id]["wins"] += 1
                 self.save_scores()
-                await ctx.send(
-                    f"✅ Correct! The word was **{word}**. {ctx.author.mention} wins! 🎉"
+                await interaction.response.send_message(
+                    f"✅ Correct! The word was **{word}**. {interaction.user.mention} wins! 🎉"
                 )
-                del self.games[ctx.channel.id]
+                del self.games[interaction.channel.id]
             else:
-                await ctx.send(
+                await interaction.response.send_message(
                     f"✅ Good guess!\n{self.display_word(word, game['guessed'])}"
                 )
         else:
             game["wrong"] += 1
             if game["wrong"] >= game["max_wrong"]:
-                self.scores[ctx.author.id]["losses"] += 1
+                self.scores[interaction.user.id]["losses"] += 1
                 self.save_scores()
-                await ctx.send(
+                await interaction.response.send_message(
                     f"{HANGMAN_PICS[game['wrong']]}\n"
                     f"❌ Wrong! Game over. The word was **{word}**. 💀"
                 )
-                del self.games[ctx.channel.id]
+                del self.games[interaction.channel.id]
             else:
-                await ctx.send(
+                await interaction.response.send_message(
                     f"{HANGMAN_PICS[game['wrong']]}\n"
                     f"❌ Wrong guess! ({game['wrong']}/{game['max_wrong']})\n"
                     f"{self.display_word(word, game['guessed'])}"
