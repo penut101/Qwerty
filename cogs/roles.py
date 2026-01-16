@@ -7,6 +7,7 @@
 # discord.py
 import discord
 from discord.ext import commands
+from discord import app_commands
 import os
 import asyncio
 
@@ -38,12 +39,12 @@ class RolesCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    # !setuproles - Post a message for users to get roles via reactions (Admin only)
-    async def setuproles(self, ctx):
+    @app_commands.command(name="setuproles", description="Post a message for users to get roles via reactions (Admin only)")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def setuproles(self, interaction: discord.Interaction):
         """Post the reaction role message."""
-        msg = await ctx.send(
+        await interaction.response.defer()
+        msg = await interaction.followup.send(
             "React to get a role:\n"
             "🎮 = Gamer\n"
             "🎵 = Music\n"
@@ -115,9 +116,9 @@ class RolesCog(commands.Cog):
             if role:
                 await member.remove_roles(role)
 
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    async def setupmajorroles(self, ctx):
+    @app_commands.command(name="setupmajorroles", description="Create all major roles and add them to reaction_roles (Admin only)")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def setupmajorroles(self, interaction: discord.Interaction):
         """Create all major roles and add them to reaction_roles (Admin only)."""
         majors_with_emojis = {
             "💻": "Computer Science",
@@ -132,7 +133,7 @@ class RolesCog(commands.Cog):
             "➗": "Mathematics",
         }
 
-        guild = ctx.guild
+        guild = interaction.guild
         created = []
         already = []
 
@@ -154,8 +155,8 @@ class RolesCog(commands.Cog):
             msg += f"✅ Created roles: {', '.join(created)}\n"
         if already:
             msg += f"ℹ️ Already existing: {', '.join(already)}\n"
-        msg += "📌 Majors added to reaction roles for `!setuproles`."
-        await ctx.send(msg)
+        msg += "📌 Majors added to reaction roles for `/setuproles`."
+        await interaction.response.send_message(msg)
 
 
 async def setup(bot):
