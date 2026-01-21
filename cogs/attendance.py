@@ -88,13 +88,7 @@ event_questions = {
         "1. Attend a fundraising Event: 1 point\n2. Attend a Philanthropy Event: 1 point\n3. Attend a Networking Event: 1 point\n4. Attending Career Fair: 1 point\n5. Help with recruitment/referring new brothers: 2 points",
     ],
     "chapter meeting": [
-        "What did you dress as for Halloween?",
-    ],
-    "board meeting": [
-        "What insights did you gain from today’s meeting?",
-        "What would you change for the next one?",
-        "Were your concerns addressed?",
-        "Anything to add for next time?",
+        "What did you do over break?",
     ],
 }
 
@@ -121,8 +115,16 @@ class Attendance(commands.Cog):
         user = message.author
         content = message.content.strip().lower()
         codes = load_codes()
+        if content == "brotherhood":
+            matched_event = "brotherhood event"
+        else:
+            matched_event = get_event_by_code(content)
 
-        matched_event = get_event_by_code(content)
+        if content == "volunteer":
+            matched_event = "volunteer hours"
+        else:
+            matched_event = get_event_by_code(content)
+
         if matched_event:
             # 🆕 Special case: Absent code
             if matched_event.lower() == "absent":
@@ -197,16 +199,25 @@ class Attendance(commands.Cog):
 
     # !setcode <eventname> <codename> - Command to set a new attendance code for an event via DM (ADMIN ONLY)
     @app_commands.describe(event="The event name", new_code="The new attendance code")
-    @app_commands.command(name="setcode", description="Command to set a new attendance code for an event via DM (ADMIN ONLY)")
-    async def set_attendance_code(self, interaction: discord.Interaction, event: str, new_code: str):
+    @app_commands.command(
+        name="setcode",
+        description="Command to set a new attendance code for an event via DM (ADMIN ONLY)",
+    )
+    async def set_attendance_code(
+        self, interaction: discord.Interaction, event: str, new_code: str
+    ):
         # Check if the command is used in a DM
         if not isinstance(interaction.channel, discord.DMChannel):
-            await interaction.response.send_message("❌ This command can only be used in DMs.")
+            await interaction.response.send_message(
+                "❌ This command can only be used in DMs."
+            )
             return
 
         # Check if user has Admin role
         if not await self.is_admin(interaction):
-            await interaction.response.send_message("⛔ You don't have permission to set attendance codes.")
+            await interaction.response.send_message(
+                "⛔ You don't have permission to set attendance codes."
+            )
             return
 
         # Save the code and confirm to the admin
@@ -217,16 +228,25 @@ class Attendance(commands.Cog):
 
     # !removecode <eventname> - Command to remove an attendance code for an event via DM (ADMIN ONLY)
     @app_commands.describe(event="The event name to remove the code for")
-    @app_commands.command(name="removecode", description="Command to remove an attendance code for an event via DM (ADMIN ONLY)")
-    async def remove_attendance_code(self, interaction: discord.Interaction, event: str):
+    @app_commands.command(
+        name="removecode",
+        description="Command to remove an attendance code for an event via DM (ADMIN ONLY)",
+    )
+    async def remove_attendance_code(
+        self, interaction: discord.Interaction, event: str
+    ):
         # Check if the command is used in a DM
         if not isinstance(interaction.channel, discord.DMChannel):
-            await interaction.response.send_message("❌ This command can only be used in DMs.")
+            await interaction.response.send_message(
+                "❌ This command can only be used in DMs."
+            )
             return
 
         # Check if user has Admin role
         if not await self.is_admin(interaction):
-            await interaction.response.send_message("⛔ You don't have permission to remove attendance codes.")
+            await interaction.response.send_message(
+                "⛔ You don't have permission to remove attendance codes."
+            )
             return
 
         # Load the existing codes
@@ -242,27 +262,40 @@ class Attendance(commands.Cog):
             with open(CONFIG_FILE, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2)
 
-            await interaction.response.send_message(f"🗑️ Code for `{event}` has been removed.")
+            await interaction.response.send_message(
+                f"🗑️ Code for `{event}` has been removed."
+            )
         else:
-            await interaction.response.send_message(f"⚠️ No code found for event `{event}`.")
+            await interaction.response.send_message(
+                f"⚠️ No code found for event `{event}`."
+            )
 
     # !listcodes - Command to list all attendance codes via DM (ADMIN ONLY)
-    @app_commands.command(name="listcodes", description="Command to list all attendance codes via DM (ADMIN ONLY)")
+    @app_commands.command(
+        name="listcodes",
+        description="Command to list all attendance codes via DM (ADMIN ONLY)",
+    )
     async def list_attendance_codes(self, interaction: discord.Interaction):
         # Check if the command is used in a DM
         if not isinstance(interaction.channel, discord.DMChannel):
-            await interaction.response.send_message("❌ This command can only be used in DMs.")
+            await interaction.response.send_message(
+                "❌ This command can only be used in DMs."
+            )
             return
 
         # Check if user has Admin role
         if not await self.is_admin(interaction):
-            await interaction.response.send_message("⛔ You don't have permission to view the attendance codes.")
+            await interaction.response.send_message(
+                "⛔ You don't have permission to view the attendance codes."
+            )
             return
 
         # Load and display all attendance codes
         codes = load_codes()
         if not codes:
-            await interaction.response.send_message("⚠️ No attendance codes are currently set.")
+            await interaction.response.send_message(
+                "⚠️ No attendance codes are currently set."
+            )
             return
 
         message = "**📋 Attendance Codes:**\n"
