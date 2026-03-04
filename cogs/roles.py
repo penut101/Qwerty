@@ -12,7 +12,7 @@ import os
 import asyncio
 
 # List of roles and their corresponding emojis
-# List of roles and their corresponding emojis
+# The running role was missing; it is now included so users can react for it.
 reaction_roles = {
     "🎮": "Gamer",
     "🎵": "Music",
@@ -21,6 +21,7 @@ reaction_roles = {
     "🏋️‍♂️": "Gym",
     "🎱": "Pool",
     "🏓": "Ping Pong",
+    "🏃": "Running",  # added
     "🌈": "LGBTQ+",
     "💻": "Computer Science",
     "📊": "Information Science",
@@ -43,28 +44,25 @@ class RolesCog(commands.Cog):
     @commands.has_permissions(administrator=True)
     # !setuproles - Post a message for users to get roles via reactions (Admin only)
     async def setuproles(self, ctx):
-        """Post the reaction role message."""
-        msg = await ctx.send(
-            "React to get a role:\n"
-            "🎮 = Gamer\n"
-            "🎵 = Music\n"
-            "🧗 = Rock Climbing\n"
-            "🍔 = Foodie\n"
-            "🏋️‍♂️ = Gym\n"
-            "🎱 = Pool\n"
-            "🏓 = Ping Pong\n"
-            "🌈 = LGBTQ+\n"
-            "💻 = Computer Science\n"
-            "📊 = Information Science\n"
-            "🧬 = Computational Biology\n"
-            "🎨 = Digital Interactive & Design\n"
-            "📈 = Data Science\n"
-            "⚛️ = Physics and Quantum Computing\n"
-            "💵 = Economics\n"
-            "📚 = English Literature\n"
-            "🖥️ = Computer Engineering\n"
-            "➗ = Mathematics"
-        )
+        """Post the reaction role message.
+
+        This command now ensures that every role in `reaction_roles` exists
+        before sending the message, and generates the message text
+        dynamically so new entries (like Running) are automatically included.
+        """
+        guild = ctx.guild
+        # make sure all the roles exist in the guild; create them if missing
+        for role_name in reaction_roles.values():
+            if not discord.utils.get(guild.roles, name=role_name):
+                await guild.create_role(name=role_name)
+
+        # build the message text from the mapping
+        lines = ["React to get a role:"]
+        for emoji, role_name in reaction_roles.items():
+            lines.append(f"{emoji} = {role_name}")
+        msg_text = "\n".join(lines)
+
+        msg = await ctx.send(msg_text)
         # Add reactions to the message for each role
         for emoji in reaction_roles:
             await msg.add_reaction(emoji)

@@ -88,7 +88,7 @@ event_questions = {
         "1. Attend a fundraising Event: 1 point\n2. Attend a Philanthropy Event: 1 point\n3. Attend a Networking Event: 1 point\n4. Attending Career Fair: 1 point\n5. Help with recruitment/referring new brothers: 2 points",
     ],
     "chapter meeting": [
-        "What did you do over break?",
+        "What are your plans for break?",
     ],
 }
 
@@ -124,7 +124,6 @@ class Attendance(commands.Cog):
             matched_event = "volunteer hours"
         else:
             matched_event = get_event_by_code(content)
-
         if matched_event:
             # 🆕 Special case: Absent code
             if matched_event.lower() == "absent":
