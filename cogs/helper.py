@@ -16,36 +16,44 @@ class HelperCog(commands.Cog):
     @app_commands.command(name="help", description="Display all bot commands organized by category")
     # Get a list of commands
     async def help(self, interaction: discord.Interaction):
-        """Display all bot commands organized by category."""
-        help_message = (
-            "**📌 General Commands:**\n"
-            "`/mastersheet` - Get the link to the mastersheet\n"
-            "`/library` - View the KTP Library\n"
-            "`/eboard` - View the list of Eboard Members\n"
-            "`/gboard` - View the list of Gboard Members\n\n"
-            "`/photocircle` - Get the link to the Photo Circle\n\n"
-            "**🎉 Birthday Commands:**\n"
-            "`/setbirthday MM-DD` - Set your birthday\n"
-            "`/removebirthday` - Remove your saved birthday\n"
-            "`/mybirthday` - Check your current birthday\n"
-            "`/birthdayboard` - View the birthday calendar\n\n"
-            "**🎲 Fun Commands:**\n"
-            "`/eightball <question>` - Ask the magic 8-ball a question\n"
-            "`/fact` - Get a random fun fact\n"
-            "`/vibecheck` - See if you pass the vibe check\n"
-            "`/coinflip` - Flip a coin\n\n"
-            "`/typefight <difficulty>` — Start a typing speed game. Difficulty levels: `easy`, `medium`, `hard`."
-            "`/typefightleaderboard <difficulty>` — View the top TypeFight scorers per difficulty."
-            "`/hangman` — Start a game of Hangman.\n"
-            "`/guess <letter>` — Guess a letter in Hangman.\n"
-            "`/solve <word>` — Attempt to solve the Hangman puzzle.\n"
-            "`/hangmanscoreboard` — View the Hangman leaderboard.\n"
+        """Display an accurate compact index; the repository holds full tutorials."""
+        embed = discord.Embed(
+            title="Qwerty Main-Server Commands",
+            description="Commands beginning with `/` are slash commands; commands beginning with `!` are typed messages.",
+            color=discord.Color.from_rgb(0, 107, 143),
         )
-
-        await interaction.response.send_message(
-            f"{interaction.user.mention}, here’s everything I can do! 🧠\n```markdown\n{help_message}```"
+        embed.add_field(
+            name="Information",
+            value="`/help` `/mastersheet` `/library` `/photocircle` `/eboard` `/gboard`",
+            inline=False,
         )
-        await interaction.followup.send("If you need help with anything else, feel free to ask! 😊")
+        embed.add_field(
+            name="Birthdays",
+            value="`/setbirthday` `/mybirthday` `/removebirthday` `/birthdayboard`",
+            inline=False,
+        )
+        embed.add_field(
+            name="Attendance (staff management)",
+            value="`/setcode` `/listcodes` `/removecode` — members check in by DMing Qwerty",
+            inline=False,
+        )
+        embed.add_field(
+            name="Fun and Hangman",
+            value="`/eightball` `/fact` `/vibecheck` `/coinflip` `/hangman` `/guess` `!solve` `!hangmanscoreboard`",
+            inline=False,
+        )
+        embed.add_field(
+            name="TypeFight and Word Scramble",
+            value="`!typefight` `!typefightleaderboard` `!typestats` `!resettypefight` `!scramble` `!unscramble` `!scramblescore`",
+            inline=False,
+        )
+        embed.add_field(
+            name="Roles and owner tools",
+            value="`!setuproles` `!setupmajorroles` `!createrainbowroles` `!startrainbow` `!stoprainbow` `/export_realnames`",
+            inline=False,
+        )
+        embed.set_footer(text="See docs/COMMAND_TUTORIAL.md in the Qwerty project for examples, permissions, and handoff procedures.")
+        await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="mastersheet", description="Get the link to the mastersheet")
     # !mastersheet - Get the link to the mastersheet

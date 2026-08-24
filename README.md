@@ -1,121 +1,65 @@
-# 🧰 Qwerty Bot Installation & Setup Guide
+# Qwerty — Main and Recruitment Discord Bot
 
-Welcome to the setup guide for **Qwerty**, the all-in-one Discord bot built for Kappa Theta Pi. This guide will walk you through everything you need to clone, configure, and run the bot on your own server.
+One Qwerty Discord application serves two servers with isolated responsibilities:
 
----
+- The **main server** keeps Qwerty's established attendance, community, birthday, role, resource, and game features.
+- The **recruitment server** receives a recruitment calendar, codeword attendance, anonymous questions, and a tracked path into the main server.
 
-## ✅ Prerequisites
+Slash commands are registered per server, not globally. Main-server members therefore do not see recruitment administration commands, and recruitment members do not see the legacy command set. Legacy `!` commands are also restricted to the configured main server.
 
-- Python 3.10 or later
-- pip (Python package installer)
-- Git (optional)
-- A Discord bot token ([create one here](https://discord.com/developers/applications))
-- (Optional) Google Sheets service credentials for attendance logging
+## Recruitment commands
 
----
+### Calendar
 
-## 📥 Step 1: Clone the Repository
+- `/calendar` — Show the next ten recruitment events
+- `/calendar-add` — Add an event (staff)
+- `/calendar-manage` — List events and their IDs (staff)
+- `/calendar-remove` — Remove an event (staff)
 
-Clone the bot using Git:
+### Recruitment information
 
-```bash
-git clone https://github.com/penut101/qwerty.git
-cd qwerty-bot
-```
+- Qwerty creates or updates the introductions, rush schedule, and FAQ posts when it starts
+- `/publish-recruitment-info` — Manually create or refresh all three posts (staff)
 
-Or download the ZIP from GitHub and extract it manually.
+### PNM onboarding
 
----
+- Members who receive the configured `PNM` role receive a private information form by DM
+- Completed forms are posted automatically to the private PNM join log
+- `/pnm-form-send` — Send or resend the form to one PNM (staff)
+- `/pnm-form-send-all` — Resend the form to every PNM who has not completed it (staff)
 
-## 📦 Step 2: Install Dependencies
+### Attendance
 
-Ensure you're in the project folder and run:
+- PNMs send an active codeword directly to Qwerty to check in
+- `/attendance-code-add` — Open attendance and set a codeword (staff)
+- `/attendance-code-list` — List active codewords (staff)
+- `/attendance-code-remove` — Close an attendance event (staff)
+- `/attendance-export` — Download all attendance records as CSV (staff)
 
-```bash
-pip install -r requirements.txt
-```
+Each recruitment-server member can check in only once per event. Main-server-only users cannot submit recruitment codewords.
 
----
+### Anonymous questions
 
-## 🔐 Step 3: Set Up Environment Variables
+- `/ask-anonymously` — Forward a question to a private staff channel
 
-Create a `.env` file in the root directory of the project and add:
+The implementation does not log, save, or forward the submitter's identity. Qwerty necessarily receives the original Discord interaction in order to process it.
 
-```
-DISCORD_TOKEN=your_discord_bot_token
-BIRTHDAY_CHANNEL_ID=your_channel_id_here
-```
+### Main-server transition
 
-If using Google Sheets for attendance, also include:
+- `/transition-invite` — Send one member the main-server invite (staff)
+- `/transition-invite-all` — Send invites to all members holding the configured source role (staff, explicit confirmation required)
+- `/transition-status` — Show delivered, pending, joined, and failed totals (staff)
 
-```
-GOOGLE_SHEETS_CREDENTIALS=path/to/your/credentials.json
-```
+Discord requires every person to choose to join the main server. Qwerty does not copy or force-add accounts. It sends the invite, tracks delivery, notices a successful join, and attempts to assign the configured new-member role.
 
-> ⚠️ Make sure `.env` and your credentials JSON file are **not** committed to your repo.
+## Staff access
 
----
+Recruitment staff commands allow members who have either Discord's **Manage Server** permission or the exact role configured by `RECRUITMENT_ADMIN_ROLE`.
 
-## 🚀 Step 4: Run the Bot
+See [INSTALLATION_GUIDE.md](INSTALLATION_GUIDE.md) for configuration and launch
+instructions. The complete member, staff, and successor tutorial is in
+[docs/COMMAND_TUTORIAL.md](docs/COMMAND_TUTORIAL.md).
 
-Run the bot with:
-
-```bash
-python bot.py
-```
-
-You should see:
-```
-✅ Bot is ready! Logged in as Qwerty#XXXX
-```
-
----
-
-## 🧪 Step 5: Invite Qwerty to Your Server
-
-1. Go to the [Discord Developer Portal](https://discord.com/developers/applications).
-2. Under your bot application, go to **OAuth2 > URL Generator**.
-3. Select:
-   - **Scopes**: `bot`
-   - **Bot Permissions**: `Send Messages`, `Manage Roles`, `Read Message History`, etc.
-4. Copy the generated invite link and open it in your browser.
-5. Select the server and invite Qwerty.
-
----
-
-## 🗂 Folder Structure
-
-```
-qwerty-bot/
-├── bot.py                # Main bot launcher
-├── .env                  # Secret environment variables (not included in repo)
-├── requirements.txt      # Dependency list
-├── cogs/                 # Modular bot commands
-│   ├── birthdays.py
-│   ├── roles.py
-│   ├── attendance.py
-│   ├── helper.py
-│   ├── fun.py
-│   ├── rainbow.py
-│   ├── typefight.py
-│   ├── hangman.py
-│   ├── wordscramble.py
-│   └── export_members.py
-└── README.md             # Feature overview and usage
-```
-
----
-
-## 🔧 Optional Configuration
-
-You can customize:
-- Roles and emojis in `roles.py`
-- Birthday message styles and timezone in `birthdays.py`
-- Google Sheet logic in `attendance.py`
-- Add new commands to `fun.py` or make your own cog
-
----
-
-## 💬 Need Help?
-
-Feel free to reach out at **aidennemeroff@gmail.com**
+Server-specific values are read from the ignored `server_config.json` file, using
+`server_config.example.json` as its documented template. Environment variables
+with the same names take precedence when deployed on a hosting platform.

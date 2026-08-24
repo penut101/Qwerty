@@ -19,6 +19,8 @@ import pytz
 import json
 from dotenv import load_dotenv
 
+from cogs.recruitment_common import is_main_member
+
 # Load .env variables
 load_dotenv()
 SHEET_ID = os.getenv("SHEET_ID")
@@ -32,15 +34,22 @@ scope = [
     "https://spreadsheets.google.com/feeds",
     "https://www.googleapis.com/auth/drive",
 ]
-# Authenticate using the service account credentials (this is the JSON file you downloaded from Google Cloud Console)
-creds = ServiceAccountCredentials.from_json_keyfile_name(
-    "qwerty-attendance-4f218a2cad1f.json", scope
-)
-# Authorize the client (this is the client that will interact with Google Sheets gotten from the creds)
-client = gspread.authorize(creds)
-# Open the Google Sheet by its ID and select the first sheet (you can change this to select a different sheet
-# Example: Differnet sheets for different semesters
-sheet = client.open_by_key(SHEET_ID).sheet1
+_sheet = None
+
+
+def get_sheet():
+    """Connect lazily so a temporary Sheets outage does not stop Qwerty startup."""
+    global _sheet
+    if _sheet is None:
+        credentials_path = os.getenv(
+            "MAIN_ATTENDANCE_CREDENTIALS", "qwerty-attendance-4f218a2cad1f.json"
+        )
+        credentials = ServiceAccountCredentials.from_json_keyfile_name(
+            credentials_path, scope
+        )
+        client = gspread.authorize(credentials)
+        _sheet = client.open_by_key(SHEET_ID).sheet1
+    return _sheet
 
 # Attendance config file
 CONFIG_FILE = "attendance_config.json"
@@ -93,23 +102,28 @@ event_questions = {
 }
 
 
-class Attendance(commands.Cog):
+class MainAttendance(commands.Cog):
+    # bot.py treats unmarked cogs as main-server-only for slash commands.
+    guild_scope = "main"
+
     def __init__(self, bot):
         self.bot = bot
         self.awaiting_response = {}
 
-    # Helper method to check if the user has the Admin role in any of the bot's guilds
+    # Check staff permissions only in the server where the command was used.
     async def is_admin(self, interaction):
-        for guild in self.bot.guilds:
-            member = guild.get_member(interaction.user.id)
-            if member and any(role.name == "Admin" for role in member.roles):
-                return True
-        return False
+        member = interaction.user
+        return isinstance(member, discord.Member) and (
+            member.guild_permissions.manage_guild
+            or any(role.name == "Admin" for role in member.roles)
+        )
 
     # Listen for DMs to check attendance codes and log responses
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.author.bot or not isinstance(message.channel, discord.DMChannel):
+            return
+        if not is_main_member(message.author.id, self.bot):
             return
 
         user = message.author
@@ -172,12 +186,14 @@ class Attendance(commands.Cog):
                 # Confirm to user
                 await user.send("📌 Thanks! Your absence reason has been noted.")
 
-                # Notify the bot owner (replace with your Discord ID) (Jess Wagner - 1141776326420856862)
-                admin_user = await self.bot.fetch_user(1141776326420856862)
-                await admin_user.send(
-                    f"⚠️ {data['real_name'] if data['real_name'] != 'Unknown' else data['username']} "
-                    f"reported ABSENT.\n\n📝 Reason: {reason}"
-                )
+                # Route reports to the current officer instead of a hard-coded person.
+                admin_id = os.getenv("ABSENCE_ADMIN_USER_ID") or os.getenv("ABSENT_ID")
+                if admin_id and admin_id.isdigit():
+                    admin_user = await self.bot.fetch_user(int(admin_id))
+                    await admin_user.send(
+                        f"⚠️ {data['real_name'] if data['real_name'] != 'Unknown' else data['username']} "
+                        f"reported ABSENT.\n\n📝 Reason: {reason}"
+                    )
             else:
                 # Handle normal attendance follow-up answer
                 answer = message.content.strip()
@@ -189,62 +205,60 @@ class Attendance(commands.Cog):
                     data["question"],
                     answer,
                 ]
-                sheet.append_row(row)
+                get_sheet().append_row(row)
                 await user.send("📌 Thanks! Your response has been recorded.")
         else:
-            await user.send(
-                "❌ Invalid code. Please try again with the correct attendance phrase."
-            )
+            # Another DM-based cog (such as recruitment attendance) may own it.
+            return
 
-    # !setcode <eventname> <codename> - Command to set a new attendance code for an event via DM (ADMIN ONLY)
+    # Main-server attendance code management (admin only).
     @app_commands.describe(event="The event name", new_code="The new attendance code")
     @app_commands.command(
         name="setcode",
-        description="Command to set a new attendance code for an event via DM (ADMIN ONLY)",
+        description="Set a main-server attendance code (admin only)",
     )
     async def set_attendance_code(
         self, interaction: discord.Interaction, event: str, new_code: str
     ):
-        # Check if the command is used in a DM
-        if not isinstance(interaction.channel, discord.DMChannel):
+        if interaction.guild is None:
             await interaction.response.send_message(
-                "❌ This command can only be used in DMs."
+                "❌ Use this command in the main server.", ephemeral=True
             )
             return
 
         # Check if user has Admin role
         if not await self.is_admin(interaction):
             await interaction.response.send_message(
-                "⛔ You don't have permission to set attendance codes."
+                "⛔ You don't have permission to set attendance codes.", ephemeral=True
             )
             return
 
         # Save the code and confirm to the admin
         save_code(event, new_code)
         await interaction.response.send_message(
-            f"✅ Code for event `{event}` set to: `{new_code.strip().lower()}`"
+            f"✅ Code for event `{event}` set to: `{new_code.strip().lower()}`",
+            ephemeral=True,
         )
 
     # !removecode <eventname> - Command to remove an attendance code for an event via DM (ADMIN ONLY)
     @app_commands.describe(event="The event name to remove the code for")
     @app_commands.command(
         name="removecode",
-        description="Command to remove an attendance code for an event via DM (ADMIN ONLY)",
+        description="Remove a main-server attendance code (admin only)",
     )
     async def remove_attendance_code(
         self, interaction: discord.Interaction, event: str
     ):
-        # Check if the command is used in a DM
-        if not isinstance(interaction.channel, discord.DMChannel):
+        if interaction.guild is None:
             await interaction.response.send_message(
-                "❌ This command can only be used in DMs."
+                "❌ Use this command in the main server.", ephemeral=True
             )
             return
 
         # Check if user has Admin role
         if not await self.is_admin(interaction):
             await interaction.response.send_message(
-                "⛔ You don't have permission to remove attendance codes."
+                "⛔ You don't have permission to remove attendance codes.", ephemeral=True
             )
             return
 
@@ -262,30 +276,29 @@ class Attendance(commands.Cog):
                 json.dump(data, f, indent=2)
 
             await interaction.response.send_message(
-                f"🗑️ Code for `{event}` has been removed."
+                f"🗑️ Code for `{event}` has been removed.", ephemeral=True
             )
         else:
             await interaction.response.send_message(
-                f"⚠️ No code found for event `{event}`."
+                f"⚠️ No code found for event `{event}`.", ephemeral=True
             )
 
     # !listcodes - Command to list all attendance codes via DM (ADMIN ONLY)
     @app_commands.command(
         name="listcodes",
-        description="Command to list all attendance codes via DM (ADMIN ONLY)",
+        description="List main-server attendance codes (admin only)",
     )
     async def list_attendance_codes(self, interaction: discord.Interaction):
-        # Check if the command is used in a DM
-        if not isinstance(interaction.channel, discord.DMChannel):
+        if interaction.guild is None:
             await interaction.response.send_message(
-                "❌ This command can only be used in DMs."
+                "❌ Use this command in the main server.", ephemeral=True
             )
             return
 
         # Check if user has Admin role
         if not await self.is_admin(interaction):
             await interaction.response.send_message(
-                "⛔ You don't have permission to view the attendance codes."
+                "⛔ You don't have permission to view the attendance codes.", ephemeral=True
             )
             return
 
@@ -293,7 +306,7 @@ class Attendance(commands.Cog):
         codes = load_codes()
         if not codes:
             await interaction.response.send_message(
-                "⚠️ No attendance codes are currently set."
+                "⚠️ No attendance codes are currently set.", ephemeral=True
             )
             return
 
@@ -301,8 +314,8 @@ class Attendance(commands.Cog):
         for event, code in codes.items():
             message += f"• `{event}` → `{code}`\n"
 
-        await interaction.response.send_message(message)
+        await interaction.response.send_message(message, ephemeral=True)
 
 
 async def setup(bot):
-    await bot.add_cog(Attendance(bot))
+    await bot.add_cog(MainAttendance(bot))

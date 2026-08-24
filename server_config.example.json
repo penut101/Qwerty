@@ -1,0 +1,14 @@
+{
+  "MAIN_GUILD_ID": "main-server-id",
+  "RECRUITMENT_GUILD_ID": "recruitment-server-id",
+  "RECRUITMENT_INTRODUCTIONS_CHANNEL_ID": "introductions-channel-id",
+  "RECRUITMENT_RUSH_SCHEDULE_CHANNEL_ID": "rush-schedule-channel-id",
+  "RECRUITMENT_FAQ_CHANNEL_ID": "faq-channel-id",
+  "ANONYMOUS_QUESTIONS_CHANNEL_ID": "private-channel-id",
+  "PNM_JOIN_LOG_CHANNEL_ID": "pnm-join-log-channel-id",
+  "PNM_ONBOARDING_ROLE": "PNM",
+  "MAIN_SERVER_INVITE_URL": "https://discord.gg/example",
+  "RECRUITMENT_ADMIN_ROLE": "Recruitment Team",
+  "TRANSITION_SOURCE_ROLE": "Accepted PNM",
+  "MAIN_NEW_MEMBER_ROLE": "New Member"
+}

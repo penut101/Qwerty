@@ -17,7 +17,7 @@ class ExportMembers(commands.Cog):
     # !export_realnames - Command to export member names to a JSON file (bot owner only)
     @app_commands.command(name="export_realnames", description="Export member names to a JSON file (bot owner only)")
     async def export_realnames(self, interaction: discord.Interaction):
-        if interaction.user.id != self.bot.owner_id:
+        if not await self.bot.is_owner(interaction.user):
             await interaction.response.send_message("You are not authorized to use this command.")
             return
         guild = interaction.guild # Get the guild (server) where the command was invoked
