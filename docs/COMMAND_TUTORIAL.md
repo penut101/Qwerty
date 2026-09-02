@@ -533,6 +533,7 @@ current implementation displays the leaderboard.
 | `.env` / `DISCORD_TOKEN` | Authenticates Qwerty | Never post or commit; rotate only if exposed |
 | `server_config.json` | Guild IDs, private channel, invite, and role names | Verify every semester; never commit the active invite |
 | `PNM_JOIN_LOG_CHANNEL_ID` | Private destination for completed PNM forms | Restrict channel access to authorized recruitment staff |
+| `PNM_ATTENDANCE_LOG_CHANNEL_ID` | Private destination for `infosesh` attendance reports | Restrict channel access to authorized recruitment staff |
 | `PNM_ONBOARDING_ROLE` | Invite-based role that triggers the PNM form | Keep synchronized with the role assigned by the PNM invite |
 | `RECRUITMENT_*_CHANNEL_ID` | Introductions, rush schedule, and FAQ destinations | Replace if any recruitment information channel changes |
 | `BIRTHDAY_CHANNEL_ID` | Main birthday announcement destination | Replace if the channel changes |

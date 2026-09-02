@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import io
+import logging
 import secrets
 from datetime import datetime
 
@@ -17,6 +18,7 @@ from cogs.recruitment_common import (
     is_main_member,
     is_recruitment_member,
     require_recruitment_staff,
+    setting,
     timezone,
 )
 from cogs.storage import load_json, save_json
@@ -26,9 +28,11 @@ DATA_DIR = data_dir()
 CODES_FILE = DATA_DIR / "attendance_codes.json"
 RECORDS_FILE = DATA_DIR / "attendance_records.json"
 TIMEZONE = timezone()
-EVENT_QUESTIONS = {
-    "pnm attendance": "How has your first week been?",
+LOGGER = logging.getLogger(__name__)
+EVENT_QUESTIONS_BY_CODE = {
+    "infosesh": "How has your first week been?",
 }
+DEFAULT_ATTENDANCE_LOG_CHANNEL_ID = "1536778474755334235"
 
 
 class RecruitmentAttendance(commands.Cog):
@@ -44,6 +48,43 @@ class RecruitmentAttendance(commands.Cog):
     def _records(self) -> list[dict[str, str]]:
         return load_json(RECORDS_FILE, [])
 
+    def _attendance_log_channel_id(self) -> int | None:
+        value = setting(
+            "PNM_ATTENDANCE_LOG_CHANNEL_ID", DEFAULT_ATTENDANCE_LOG_CHANNEL_ID
+        )
+        return int(value) if value.isdigit() else None
+
+    async def _post_attendance_report(
+        self, record: dict[str, str]
+    ) -> discord.Message:
+        channel_id = self._attendance_log_channel_id()
+        if channel_id is None:
+            raise TypeError("PNM attendance log channel is not configured")
+
+        channel = self.bot.get_channel(channel_id) or await self.bot.fetch_channel(
+            channel_id
+        )
+        if not isinstance(channel, (discord.TextChannel, discord.Thread)):
+            raise TypeError("PNM attendance log is not a text channel")
+
+        embed = discord.Embed(
+            title="PNM Attendance Report",
+            description=(
+                f"**Question**\n{record['question']}\n\n"
+                f"**Answer**\n{record['answer']}"
+            ),
+            color=discord.Color.green(),
+            timestamp=datetime.fromisoformat(record["checked_in_at"]),
+        )
+        embed.add_field(name="Event", value=record["event_name"], inline=False)
+        embed.add_field(name="Display name", value=record["display_name"], inline=True)
+        embed.add_field(name="Discord username", value=record["discord_name"], inline=True)
+        embed.add_field(name="Discord user ID", value=record["discord_user_id"], inline=False)
+        return await channel.send(
+            embed=embed,
+            allowed_mentions=discord.AllowedMentions.none(),
+        )
+
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         """Treat a direct message as an attendance codeword."""
@@ -56,15 +97,29 @@ class RecruitmentAttendance(commands.Cog):
 
         submitted_code = message.content.strip().casefold()
 
-        pending = self.awaiting_response.pop(message.author.id, None)
+        pending = self.awaiting_response.get(message.author.id)
         if pending is not None:
+            record = {
+                **pending,
+                "answer": message.content.strip(),
+            }
+            try:
+                report = await self._post_attendance_report(record)
+            except (discord.DiscordException, TypeError, ValueError):
+                LOGGER.exception(
+                    "Could not post attendance report for member %s",
+                    message.author.id,
+                )
+                await message.channel.send(
+                    "I couldn't post your attendance report. Your answer is still pending; "
+                    "please contact the Recruitment Team."
+                )
+                return
+
+            self.awaiting_response.pop(message.author.id, None)
+            record["report_message_id"] = str(report.id)
             records = self._records()
-            records.append(
-                {
-                    **pending,
-                    "answer": message.content.strip(),
-                }
-            )
+            records.append(record)
             save_json(RECORDS_FILE, records)
             await message.channel.send("Thanks! Your response has been recorded.")
             return
@@ -106,7 +161,7 @@ class RecruitmentAttendance(commands.Cog):
             "display_name": message.author.display_name,
             "checked_in_at": datetime.now(TIMEZONE).isoformat(timespec="seconds"),
         }
-        question = EVENT_QUESTIONS.get(match["event_name"].casefold())
+        question = EVENT_QUESTIONS_BY_CODE.get(match["code"].casefold())
         if question:
             record["question"] = question
             self.awaiting_response[message.author.id] = record
