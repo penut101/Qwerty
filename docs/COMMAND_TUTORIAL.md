@@ -102,6 +102,18 @@ After processing, Qwerty privately reports the number sent, skipped, and failed.
 /pnm-form-send-all
 ```
 
+#### `/pnm-information-export`
+
+Downloads all completed PNM forms from the private join log as
+`qwerty_pnm_information.csv`. The sheet includes names, phone numbers, Pitt
+emails, Discord usernames, Discord user IDs, and completion timestamps.
+
+```text
+/pnm-information-export
+```
+
+The response is private and the command is restricted to recruitment staff.
+
 #### `/publish-recruitment-info`
 
 Creates any missing introductions, rush schedule, and FAQ posts, or updates
@@ -200,7 +212,8 @@ Downloads all recruitment attendance as `qwerty_attendance.csv`.
 ```
 
 The CSV contains event ID, event name, Discord user ID, Discord name, display
-name, and timestamp. Store exports according to the chapter's privacy policy.
+name, timestamp, event-specific question, and the PNM's answer. Store exports
+according to the chapter's privacy policy.
 
 #### `/transition-invite member:<member>`
 

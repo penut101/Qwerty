@@ -97,7 +97,7 @@ event_questions = {
         "1. Attend a fundraising Event: 1 point\n2. Attend a Philanthropy Event: 1 point\n3. Attend a Networking Event: 1 point\n4. Attending Career Fair: 1 point\n5. Help with recruitment/referring new brothers: 2 points",
     ],
     "chapter meeting": [
-        "What are your plans for break?",
+        "How was your summer?",
     ],
 }
 

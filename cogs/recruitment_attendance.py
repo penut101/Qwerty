@@ -26,6 +26,9 @@ DATA_DIR = data_dir()
 CODES_FILE = DATA_DIR / "attendance_codes.json"
 RECORDS_FILE = DATA_DIR / "attendance_records.json"
 TIMEZONE = timezone()
+EVENT_QUESTIONS = {
+    "pnm attendance": "How has your first week been?",
+}
 
 
 class RecruitmentAttendance(commands.Cog):
@@ -33,6 +36,7 @@ class RecruitmentAttendance(commands.Cog):
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        self.awaiting_response: dict[int, dict[str, str]] = {}
 
     def _codes(self) -> dict[str, dict[str, str]]:
         return load_json(CODES_FILE, {})
@@ -51,6 +55,20 @@ class RecruitmentAttendance(commands.Cog):
             return
 
         submitted_code = message.content.strip().casefold()
+
+        pending = self.awaiting_response.pop(message.author.id, None)
+        if pending is not None:
+            records = self._records()
+            records.append(
+                {
+                    **pending,
+                    "answer": message.content.strip(),
+                }
+            )
+            save_json(RECORDS_FILE, records)
+            await message.channel.send("Thanks! Your response has been recorded.")
+            return
+
         match = next(
             (
                 entry
@@ -80,16 +98,26 @@ class RecruitmentAttendance(commands.Cog):
             )
             return
 
-        records.append(
-            {
-                "event_id": match["id"],
-                "event_name": match["event_name"],
-                "discord_user_id": str(message.author.id),
-                "discord_name": str(message.author),
-                "display_name": message.author.display_name,
-                "checked_in_at": datetime.now(TIMEZONE).isoformat(timespec="seconds"),
-            }
-        )
+        record = {
+            "event_id": match["id"],
+            "event_name": match["event_name"],
+            "discord_user_id": str(message.author.id),
+            "discord_name": str(message.author),
+            "display_name": message.author.display_name,
+            "checked_in_at": datetime.now(TIMEZONE).isoformat(timespec="seconds"),
+        }
+        question = EVENT_QUESTIONS.get(match["event_name"].casefold())
+        if question:
+            record["question"] = question
+            self.awaiting_response[message.author.id] = record
+            await message.channel.send(
+                f"You're checked in for **{match['event_name']}**.\n\n"
+                f"Quick question:\n**{question}**"
+            )
+            return
+
+        record.update({"question": "", "answer": ""})
+        records.append(record)
         save_json(RECORDS_FILE, records)
         await message.channel.send(
             f"You're checked in for **{match['event_name']}**. Thank you!"
@@ -204,10 +232,15 @@ class RecruitmentAttendance(commands.Cog):
             "discord_name",
             "display_name",
             "checked_in_at",
+            "question",
+            "answer",
         ]
         writer = csv.DictWriter(output, fieldnames=columns)
         writer.writeheader()
-        writer.writerows(records)
+        writer.writerows(
+            {column: record.get(column, "") for column in columns}
+            for record in records
+        )
         payload = io.BytesIO(output.getvalue().encode("utf-8"))
         await interaction.response.send_message(
             file=discord.File(payload, filename="qwerty_attendance.csv"), ephemeral=True

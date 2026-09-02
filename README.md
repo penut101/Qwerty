@@ -27,6 +27,7 @@ Slash commands are registered per server, not globally. Main-server members ther
 - Completed forms are posted automatically to the private PNM join log
 - `/pnm-form-send` — Send or resend the form to one PNM (staff)
 - `/pnm-form-send-all` — Resend the form to every PNM who has not completed it (staff)
+- `/pnm-information-export` — Download all submitted PNM information as a CSV sheet (staff)
 
 ### Attendance
 

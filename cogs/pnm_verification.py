@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import asyncio
+import csv
+import io
 import logging
 import re
 from datetime import datetime
@@ -153,7 +155,9 @@ class PNMOnboarding(commands.Cog):
         if channel_id is None:
             return
         try:
-            channel = self.bot.get_channel(channel_id) or await self.bot.fetch_channel(channel_id)
+            channel = self.bot.get_channel(channel_id) or await self.bot.fetch_channel(
+                channel_id
+            )
             if not isinstance(channel, (discord.TextChannel, discord.Thread)):
                 return
             await channel.send(
@@ -354,6 +358,86 @@ class PNMOnboarding(commands.Cog):
                 )
             )
         await interaction.followup.send("\n".join(summary), ephemeral=True)
+
+    @app_commands.command(
+        name="pnm-information-export",
+        description="Download all submitted PNM information as a CSV sheet",
+    )
+    async def export_pnm_information(self, interaction: discord.Interaction):
+        if not await require_recruitment_staff(interaction):
+            return
+
+        await interaction.response.defer(ephemeral=True)
+        channel_id = self._join_log_channel_id()
+        if channel_id is None:
+            await interaction.followup.send(
+                "The PNM join log is not configured yet.", ephemeral=True
+            )
+            return
+
+        try:
+            channel = self.bot.get_channel(channel_id) or await self.bot.fetch_channel(channel_id)
+            if not isinstance(channel, (discord.TextChannel, discord.Thread)):
+                raise TypeError("PNM join log is not a text channel")
+
+            rows = []
+            for member_id, record in self._records().items():
+                message_id = record.get("report_message_id", "")
+                if record.get("status") != "completed" or not message_id.isdigit():
+                    continue
+                try:
+                    report = await channel.fetch_message(int(message_id))
+                except (discord.NotFound, discord.Forbidden, discord.HTTPException):
+                    LOGGER.warning("Could not fetch PNM report message %s", message_id)
+                    continue
+                if not report.embeds:
+                    continue
+                fields = {
+                    field.name.casefold(): field.value
+                    for field in report.embeds[0].fields
+                }
+                rows.append(
+                    {
+                        "discord_user_id": member_id,
+                        "first_name": fields.get("first name", ""),
+                        "last_name": fields.get("last name", ""),
+                        "phone_number": fields.get("phone number", ""),
+                        "pitt_email": fields.get("pitt email", ""),
+                        "discord_username": fields.get("discord username", ""),
+                        "completed_at": record.get("completed_at", ""),
+                    }
+                )
+        except (discord.DiscordException, TypeError):
+            LOGGER.exception("Could not read PNM join log channel %s", channel_id)
+            await interaction.followup.send(
+                "I couldn't read the PNM join log.", ephemeral=True
+            )
+            return
+
+        if not rows:
+            await interaction.followup.send(
+                "No completed PNM information could be found.", ephemeral=True
+            )
+            return
+
+        columns = [
+            "discord_user_id",
+            "first_name",
+            "last_name",
+            "phone_number",
+            "pitt_email",
+            "discord_username",
+            "completed_at",
+        ]
+        output = io.StringIO(newline="")
+        writer = csv.DictWriter(output, fieldnames=columns)
+        writer.writeheader()
+        writer.writerows(rows)
+        payload = io.BytesIO(output.getvalue().encode("utf-8-sig"))
+        await interaction.followup.send(
+            file=discord.File(payload, filename="qwerty_pnm_information.csv"),
+            ephemeral=True,
+        )
 
 
 async def setup(bot: commands.Bot):
